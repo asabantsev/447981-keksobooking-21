@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Алексей Сабанцев](https://up.htmlacademy.ru/javascript/21/user/447981).
-* Наставник: `Неизвестно`.
+* Наставник: [Лариса Клец](https://htmlacademy.ru/profile/id336227).
 
 ---
 
