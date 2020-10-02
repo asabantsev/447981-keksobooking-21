@@ -12,47 +12,79 @@ const OFFER_PHOTOS = [
 const OFFER_ROOMS_MIN = 1;
 const OFFER_ROOMS_MAX = 3;
 const OFFER_LOCATION_X_MIN = 130;
-const OFFER_LOCATION_X_MAX = 630;
+const OFFER_LOCATION_X_MAX = 1070;
 const OFFER_LOCATION_Y_MIN = 130;
 const OFFER_LOCATION_Y_MAX = 630;
 const OFFER_COUNT = 8;
+const PIN_WIDTH = 50;
+const PIN_HEIGHT = 70;
 
 let getRandomItem = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);
 };
 
-let getOfferArray = function (lenght) {
+let getOfferLocationArray = function (length) {
   let array = [];
 
-  for (let i = 1; i <= lenght; i++) {
+  for (let i = 0; i <= length; i++) {
     array.push({
-      author: {
-        avatar: `img/avatars/user0` + i + `.png`,
-      },
-      offer: {
-        title: `Заголовок предложения`,
-        address: getRandomItem(OFFER_LOCATION_X_MIN, OFFER_LOCATION_X_MAX) + `, ` + getRandomItem(OFFER_LOCATION_Y_MIN, OFFER_LOCATION_Y_MAX),
-        price: `Стоимость`,
-        type: OFFER_TYPE[getRandomItem(0, OFFER_TYPE.length)],
-        rooms: getRandomItem(OFFER_ROOMS_MIN, OFFER_ROOMS_MAX),
-        guests: getRandomItem(OFFER_ROOMS_MIN, OFFER_ROOMS_MAX),
-        checkin: OFFER_CHECKIN[getRandomItem(0, OFFER_CHECKIN.length)],
-        checkout: OFFER_CHECKOUT[getRandomItem(0, OFFER_CHECKOUT.length)],
-        features: OFFER_FEATURES[getRandomItem(0, OFFER_FEATURES.length)],
-        description: `Строка с описанием`,
-        photos: OFFER_PHOTOS[getRandomItem(0, OFFER_PHOTOS.length)],
-      },
-      location: {
-        x: getRandomItem(OFFER_LOCATION_X_MIN, OFFER_LOCATION_X_MAX),
-        y: getRandomItem(OFFER_LOCATION_Y_MIN, OFFER_LOCATION_Y_MAX),
-      }
+      x: getRandomItem(OFFER_LOCATION_X_MIN, OFFER_LOCATION_X_MAX),
+      y: getRandomItem(OFFER_LOCATION_Y_MIN, OFFER_LOCATION_Y_MAX),
     });
   }
 
   return array;
 };
 
-let offers = getOfferArray(OFFER_COUNT);
+let suffleArray = function (array) {
+  let i = array.length;
+
+  while (i !== 0) {
+    const randomIndex = Math.floor(Math.random() * i);
+    i -= 1;
+
+    const temporaryValue = array[i];
+    array[i] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+};
+
+let getRandomArray = function (array) {
+  return suffleArray(array).slice(getRandomItem(0, array.length));
+};
+
+let getOfferArray = function (length) {
+  let array = [];
+
+  for (let i = 0; i <= length; i++) {
+    array.push({
+      author: {
+        avatar: `img/avatars/user0` + (i + 1) + `.png`,
+      },
+      offer: {
+        title: `Заголовок предложения`,
+        address: getOfferLocationArray(OFFER_COUNT)[i].x + `, ` + getOfferLocationArray(OFFER_COUNT)[i].y,
+        price: `Стоимость`,
+        type: OFFER_TYPE[getRandomItem(0, OFFER_TYPE.length)],
+        features: getRandomArray(OFFER_FEATURES),
+        rooms: getRandomItem(OFFER_ROOMS_MIN, OFFER_ROOMS_MAX),
+        guests: getRandomItem(OFFER_ROOMS_MIN, OFFER_ROOMS_MAX),
+        checkin: OFFER_CHECKIN[getRandomItem(0, OFFER_CHECKIN.length)],
+        checkout: OFFER_CHECKOUT[getRandomItem(0, OFFER_CHECKOUT.length)],
+        description: `Строка с описанием`,
+        photos: getRandomArray(OFFER_PHOTOS),
+      },
+      location: {
+        x: getOfferLocationArray(OFFER_COUNT)[i].x,
+        y: getOfferLocationArray(OFFER_COUNT)[i].y,
+      }
+    });
+  }
+
+  return array;
+};
 
 let map = document.querySelector(`.map`);
 map.classList.remove(`map--faded`);
@@ -62,20 +94,20 @@ let pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pi
 let renderOffers = function (obj) {
   let pinElement = pinTemplate.cloneNode(true);
 
-  pinElement.style.left = obj.location.x - 25 + `px`;
-  pinElement.style.top = obj.location.y - 35 + `px`;
+  pinElement.style.left = obj.location.x - PIN_WIDTH / 2 + `px`;
+  pinElement.style.top = obj.location.y - PIN_HEIGHT / 2 + `px`;
   pinTemplate.getElementsByTagName(`img`)[0].src = obj.author.avatar;
   pinTemplate.getElementsByTagName(`img`)[0].alt = obj.offer.description;
 
   return pinElement;
 };
 
-let mapPins = document.querySelector(`.map__pins`);
+let mapPins = map.querySelector(`.map__pins`);
 
 let fragment = document.createDocumentFragment();
 
-for (let i = 0; i < offers.length; i++) {
-  fragment.appendChild(renderOffers(offers[i]));
+for (let i = 0; i < getOfferArray(OFFER_COUNT).length; i++) {
+  fragment.appendChild(renderOffers(getOfferArray(OFFER_COUNT)[i]));
 }
 
 mapPins.appendChild(fragment);
