@@ -26,7 +26,7 @@ let getRandomItem = function (min, max) {
 let getOfferLocationArray = function (length) {
   let array = [];
 
-  for (let i = 0; i <= length; i++) {
+  for (let i = 0; i < length; i++) {
     array.push({
       x: getRandomItem(OFFER_LOCATION_X_MIN, OFFER_LOCATION_X_MAX),
       y: getRandomItem(OFFER_LOCATION_Y_MIN, OFFER_LOCATION_Y_MAX),
@@ -35,6 +35,8 @@ let getOfferLocationArray = function (length) {
 
   return array;
 };
+
+let offersLocation = getOfferLocationArray(OFFER_COUNT);
 
 let suffleArray = function (array) {
   let i = array.length;
@@ -58,14 +60,14 @@ let getRandomArray = function (array) {
 let getOfferArray = function (length) {
   let array = [];
 
-  for (let i = 0; i <= length; i++) {
+  for (let i = 0; i < length; i++) {
     array.push({
       author: {
         avatar: `img/avatars/user0` + (i + 1) + `.png`,
       },
       offer: {
         title: `Заголовок предложения`,
-        address: getOfferLocationArray(OFFER_COUNT)[i].x + `, ` + getOfferLocationArray(OFFER_COUNT)[i].y,
+        address: offersLocation[i].x + `, ` + offersLocation[i].y,
         price: `Стоимость`,
         type: OFFER_TYPE[getRandomItem(0, OFFER_TYPE.length)],
         features: getRandomArray(OFFER_FEATURES),
@@ -77,14 +79,16 @@ let getOfferArray = function (length) {
         photos: getRandomArray(OFFER_PHOTOS),
       },
       location: {
-        x: getOfferLocationArray(OFFER_COUNT)[i].x,
-        y: getOfferLocationArray(OFFER_COUNT)[i].y,
+        x: offersLocation[i].x,
+        y: offersLocation[i].y,
       }
     });
   }
 
   return array;
 };
+
+let offers = getOfferArray(OFFER_COUNT);
 
 let map = document.querySelector(`.map`);
 map.classList.remove(`map--faded`);
@@ -106,8 +110,8 @@ let mapPins = map.querySelector(`.map__pins`);
 
 let fragment = document.createDocumentFragment();
 
-for (let i = 0; i < getOfferArray(OFFER_COUNT).length; i++) {
-  fragment.appendChild(renderOffers(getOfferArray(OFFER_COUNT)[i]));
+for (let i = 0; i < offers.length; i++) {
+  fragment.appendChild(renderOffers(offers[i]));
 }
 
 mapPins.appendChild(fragment);
