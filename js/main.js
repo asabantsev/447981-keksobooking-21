@@ -158,7 +158,8 @@ let fragment = document.createDocumentFragment();
 
 for (let i = 0; i < offers.length; i++) {
   fragment.appendChild(renderOffers(offers[i]));
-  fragment.appendChild(renderCard(offers[i]));
 }
 
 mapPins.appendChild(fragment);
+let mapFilters = map.querySelector(`.map__filters-container`);
+map.insertBefore(renderCard(offers[0]), mapFilters);
