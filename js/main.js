@@ -21,6 +21,8 @@ const OFFER_LOCATION_Y_MAX = 630;
 const OFFER_COUNT = 8;
 const PIN_WIDTH = 50;
 const PIN_HEIGHT = 70;
+const PHOTO_WIDTH = 45;
+const PHOTO_HEIGHT = 40;
 
 let getRandomItem = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -102,10 +104,10 @@ let cardTemplate = document.querySelector(`#card`).content.querySelector(`.popup
 let renderOffers = function (obj) {
   let pinElement = pinTemplate.cloneNode(true);
 
-  pinElement.style.left = obj.location.x - PIN_WIDTH + `px`;
+  pinElement.style.left = obj.location.x - PIN_WIDTH / 2 + `px`;
   pinElement.style.top = obj.location.y - PIN_HEIGHT + `px`;
-  pinTemplate.getElementsByTagName(`img`)[0].src = obj.author.avatar;
-  pinTemplate.getElementsByTagName(`img`)[0].alt = obj.offer.description;
+  pinTemplate.querySelector(`img`).src = obj.author.avatar;
+  pinTemplate.querySelector(`img`).alt = obj.offer.description;
 
   return pinElement;
 };
@@ -140,8 +142,8 @@ let renderCard = function (obj) {
     photo.src = obj.offer.photos[i];
     photo.alt = `Фотография жилья`;
     photo.className = `popup__photo`;
-    photo.width = 45;
-    photo.height = 40;
+    photo.width = PHOTO_WIDTH;
+    photo.height = PHOTO_HEIGHT;
     photos.appendChild(photo);
   }
 
