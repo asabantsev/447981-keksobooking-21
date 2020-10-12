@@ -1,26 +1,26 @@
 'use strict';
 
-// const OFFER_CHECKIN = [`12:00`, `13:00`, `14:00`];
-// const OFFER_CHECKOUT = [`12:00`, `13:00`, `14:00`];
-// const OFFER_TYPE = [`Дворец`, `Квартира`, `Дом`, `Бунгало`];
-// const OFFER_FEATURES = [`wifi`, `dishwasher`, `parking`, `washer`, `elevator`, `conditioner`];
-// const OFFER_DESCRIPTION = [`Великолепная квартира-студия в центре Токио.`, `Подходит как туристам, так и бизнесменам.`, `Квартира полностью укомплектована и недавно отремонтирована.`];
-// const OFFER_PHOTOS = [
-//   `http://o0.github.io/assets/images/tokyo/hotel1.jpg`,
-//   `http://o0.github.io/assets/images/tokyo/hotel2.jpg`,
-//   `http://o0.github.io/assets/images/tokyo/hotel3.jpg`
-// ];
-// const OFFER_ROOMS_MIN = 1;
-// const OFFER_ROOMS_MAX = 3;
-// const OFFER_PRICE_MIN = 0;
-// const OFFER_PRICE_MAX = 10000;
-// const OFFER_LOCATION_X_MIN = 130;
-// const OFFER_LOCATION_X_MAX = 1070;
-// const OFFER_LOCATION_Y_MIN = 130;
-// const OFFER_LOCATION_Y_MAX = 630;
-// const OFFER_COUNT = 8;
-// const PIN_WIDTH = 50;
-// const PIN_HEIGHT = 70;
+const OFFER_CHECKIN = [`12:00`, `13:00`, `14:00`];
+const OFFER_CHECKOUT = [`12:00`, `13:00`, `14:00`];
+const OFFER_TYPE = [`Дворец`, `Квартира`, `Дом`, `Бунгало`];
+const OFFER_FEATURES = [`wifi`, `dishwasher`, `parking`, `washer`, `elevator`, `conditioner`];
+const OFFER_DESCRIPTION = [`Великолепная квартира-студия в центре Токио.`, `Подходит как туристам, так и бизнесменам.`, `Квартира полностью укомплектована и недавно отремонтирована.`];
+const OFFER_PHOTOS = [
+  `http://o0.github.io/assets/images/tokyo/hotel1.jpg`,
+  `http://o0.github.io/assets/images/tokyo/hotel2.jpg`,
+  `http://o0.github.io/assets/images/tokyo/hotel3.jpg`
+];
+const OFFER_ROOMS_MIN = 1;
+const OFFER_ROOMS_MAX = 3;
+const OFFER_PRICE_MIN = 0;
+const OFFER_PRICE_MAX = 10000;
+const OFFER_LOCATION_X_MIN = 130;
+const OFFER_LOCATION_X_MAX = 1070;
+const OFFER_LOCATION_Y_MIN = 130;
+const OFFER_LOCATION_Y_MAX = 630;
+const OFFER_COUNT = 8;
+const PIN_WIDTH = 50;
+const PIN_HEIGHT = 70;
 // const PHOTO_WIDTH = 45;
 // const PHOTO_HEIGHT = 40;
 const MAP_PIN_WIDTH = 65;
@@ -28,93 +28,93 @@ const MAP_PIN_HEIGHT = 65;
 const ROOMS = [1, 2, 3, 100];
 const CAPACITY = [3, 2, 1, 0];
 
-// let getRandomItem = function (min, max) {
-//   return Math.floor(Math.random() * (max - min) + min);
-// };
+let getRandomItem = function (min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
+};
 
-// let getOfferLocationArray = function (length) {
-//   let array = [];
+let getOfferLocationArray = function (length) {
+  let array = [];
 
-//   for (let i = 0; i < length; i++) {
-//     array.push({
-//       x: getRandomItem(OFFER_LOCATION_X_MIN, OFFER_LOCATION_X_MAX),
-//       y: getRandomItem(OFFER_LOCATION_Y_MIN, OFFER_LOCATION_Y_MAX),
-//     });
-//   }
+  for (let i = 0; i < length; i++) {
+    array.push({
+      x: getRandomItem(OFFER_LOCATION_X_MIN, OFFER_LOCATION_X_MAX),
+      y: getRandomItem(OFFER_LOCATION_Y_MIN, OFFER_LOCATION_Y_MAX),
+    });
+  }
 
-//   return array;
-// };
+  return array;
+};
 
-// let offersLocation = getOfferLocationArray(OFFER_COUNT);
+let offersLocation = getOfferLocationArray(OFFER_COUNT);
 
-// let suffleArray = function (array) {
-//   let i = array.length;
+let suffleArray = function (array) {
+  let i = array.length;
 
-//   while (i !== 0) {
-//     const randomIndex = Math.floor(Math.random() * i);
-//     i -= 1;
+  while (i !== 0) {
+    const randomIndex = Math.floor(Math.random() * i);
+    i -= 1;
 
-//     const temporaryValue = array[i];
-//     array[i] = array[randomIndex];
-//     array[randomIndex] = temporaryValue;
-//   }
+    const temporaryValue = array[i];
+    array[i] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
 
-//   return array;
-// };
+  return array;
+};
 
-// let getRandomArray = function (array) {
-//   return suffleArray(array).slice(getRandomItem(0, array.length));
-// };
+let getRandomArray = function (array) {
+  return suffleArray(array).slice(getRandomItem(0, array.length));
+};
 
-// let getOfferArray = function (length) {
-//   let array = [];
+let getOfferArray = function (length) {
+  let array = [];
 
-//   for (let i = 0; i < length; i++) {
-//     array.push({
-//       author: {
-//         avatar: `img/avatars/user0` + (i + 1) + `.png`,
-//       },
-//       offer: {
-//         title: `Заголовок предложения`,
-//         address: offersLocation[i].x + `, ` + offersLocation[i].y,
-//         price: getRandomItem(OFFER_PRICE_MIN, OFFER_PRICE_MAX),
-//         type: OFFER_TYPE[getRandomItem(0, OFFER_TYPE.length)],
-//         features: getRandomArray(OFFER_FEATURES),
-//         rooms: getRandomItem(OFFER_ROOMS_MIN, OFFER_ROOMS_MAX),
-//         guests: getRandomItem(OFFER_ROOMS_MIN, OFFER_ROOMS_MAX),
-//         checkin: OFFER_CHECKIN[getRandomItem(0, OFFER_CHECKIN.length)],
-//         checkout: OFFER_CHECKOUT[getRandomItem(0, OFFER_CHECKOUT.length)],
-//         description: OFFER_DESCRIPTION[getRandomItem(0, OFFER_CHECKOUT.length)],
-//         photos: getRandomArray(OFFER_PHOTOS),
-//       },
-//       location: {
-//         x: offersLocation[i].x,
-//         y: offersLocation[i].y,
-//       }
-//     });
-//   }
+  for (let i = 0; i < length; i++) {
+    array.push({
+      author: {
+        avatar: `img/avatars/user0` + (i + 1) + `.png`,
+      },
+      offer: {
+        title: `Заголовок предложения`,
+        address: offersLocation[i].x + `, ` + offersLocation[i].y,
+        price: getRandomItem(OFFER_PRICE_MIN, OFFER_PRICE_MAX),
+        type: OFFER_TYPE[getRandomItem(0, OFFER_TYPE.length)],
+        features: getRandomArray(OFFER_FEATURES),
+        rooms: getRandomItem(OFFER_ROOMS_MIN, OFFER_ROOMS_MAX),
+        guests: getRandomItem(OFFER_ROOMS_MIN, OFFER_ROOMS_MAX),
+        checkin: OFFER_CHECKIN[getRandomItem(0, OFFER_CHECKIN.length)],
+        checkout: OFFER_CHECKOUT[getRandomItem(0, OFFER_CHECKOUT.length)],
+        description: OFFER_DESCRIPTION[getRandomItem(0, OFFER_CHECKOUT.length)],
+        photos: getRandomArray(OFFER_PHOTOS),
+      },
+      location: {
+        x: offersLocation[i].x,
+        y: offersLocation[i].y,
+      }
+    });
+  }
 
-//   return array;
-// };
+  return array;
+};
 
-// let offers = getOfferArray(OFFER_COUNT);
+let offers = getOfferArray(OFFER_COUNT);
 
 let map = document.querySelector(`.map`);
 // map.classList.remove(`map--faded`);
 
-// let pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
+let pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
 // let cardTemplate = document.querySelector(`#card`).content.querySelector(`.popup`);
 
-// let renderOffers = function (obj) {
-//   let pinElement = pinTemplate.cloneNode(true);
+let renderOffers = function (obj) {
+  let pinElement = pinTemplate.cloneNode(true);
 
-//   pinElement.style.left = obj.location.x - PIN_WIDTH / 2 + `px`;
-//   pinElement.style.top = obj.location.y - PIN_HEIGHT + `px`;
-//   pinTemplate.querySelector(`img`).src = obj.author.avatar;
-//   pinTemplate.querySelector(`img`).alt = obj.offer.description;
+  pinElement.style.left = obj.location.x - PIN_WIDTH / 2 + `px`;
+  pinElement.style.top = obj.location.y - PIN_HEIGHT + `px`;
+  pinTemplate.querySelector(`img`).src = obj.author.avatar;
+  pinTemplate.querySelector(`img`).alt = obj.offer.description;
 
-//   return pinElement;
-// };
+  return pinElement;
+};
 
 // let renderCard = function (obj) {
 //   let cardElement = cardTemplate.cloneNode(true);
@@ -156,30 +156,21 @@ let map = document.querySelector(`.map`);
 //   return cardElement;
 // };
 
-// let mapPins = map.querySelector(`.map__pins`);
+let mapPins = map.querySelector(`.map__pins`);
 
-// let fragment = document.createDocumentFragment();
-
-// for (let i = 0; i < offers.length; i++) {
-//   fragment.appendChild(renderOffers(offers[i]));
-// }
-
-// mapPins.appendChild(fragment);
-// let mapFilters = map.querySelector(`.map__filters-container`);
-// map.insertBefore(renderCard(offers[0]), mapFilters);
+let fragment = document.createDocumentFragment();
 
 let mapPin = map.querySelector(`.map__pin--main`);
 let adForm = document.querySelector(`.ad-form`);
+let adFormFieldsets = adForm.querySelectorAll(`fieldset`);
+let mapFiltersContainer = map.querySelector(`.map__filters-container`);
+let mapFilters = mapFiltersContainer.querySelector(`.map__filters`);
+let mapFiltersSelects = mapFilters.querySelectorAll(`select`);
 let adFormAddress = adForm.querySelector(`input[name="address"]`);
-let adFormRooms = adForm.querySelector(`select[name="rooms"]`);
-let adFormCapacity = adForm.querySelector(`select[name="capacity"]`);
 let mapPinX = mapPin.offsetLeft - MAP_PIN_WIDTH / 2;
 let mapPinY = mapPin.offsetTop - MAP_PIN_HEIGHT / 2;
-
-mapPin.addEventListener(`mousedown`, function () {
-  adForm.classList.remove(`ad-form--disabled`);
-  adFormAddress.value = `X: ` + mapPinX + `, Y: ` + mapPinY;
-});
+let adFormRooms = adForm.querySelector(`select[name="rooms"]`);
+let adFormCapacity = adForm.querySelector(`select[name="capacity"]`);
 
 adFormCapacity.addEventListener(`input`, function () {
   if (+adFormRooms.value === ROOMS[0] && +adFormCapacity.value !== CAPACITY[2]) {
@@ -196,3 +187,43 @@ adFormCapacity.addEventListener(`input`, function () {
 
   adFormCapacity.reportValidity();
 });
+
+// map.insertBefore(renderCard(offers[0]), mapFiltersContainer);
+
+let setDisactiveState = function () {
+  map.classList.add(`map--faded`);
+  adForm.classList.add(`ad-form--disabled`);
+
+  for (let i = 0; i < adFormFieldsets.length; i++) {
+    adFormFieldsets[i].setAttribute(`disabled`, ``);
+  }
+
+  for (let i = 0; i < mapFiltersSelects.length; i++) {
+    mapFiltersSelects[i].setAttribute(`disabled`, ``);
+  }
+
+  mapPin.addEventListener(`mousedown`, function () {
+    adFormAddress.value = `X: ` + mapPinX + `, Y: ` + mapPinY;
+    setActiveState();
+  });
+};
+
+setDisactiveState();
+
+let setActiveState = function () {
+  map.classList.remove(`map--faded`);
+  adForm.classList.remove(`ad-form--disabled`);
+
+  for (let i = 0; i < adFormFieldsets.length; i++) {
+    adFormFieldsets[i].removeAttribute(`disabled`, ``);
+  }
+
+  for (let i = 0; i < mapFiltersSelects.length; i++) {
+    mapFiltersSelects[i].removeAttribute(`disabled`, ``);
+  }
+
+  for (let i = 0; i < offers.length; i++) {
+    fragment.appendChild(renderOffers(offers[i]));
+  }
+  mapPins.appendChild(fragment);
+};
