@@ -166,6 +166,7 @@ let adFormFieldsets = adForm.querySelectorAll(`fieldset`);
 let mapFiltersContainer = map.querySelector(`.map__filters-container`);
 let mapFilters = mapFiltersContainer.querySelector(`.map__filters`);
 let mapFiltersSelects = mapFilters.querySelectorAll(`select`);
+let mapFiltersInputs = mapFilters.querySelectorAll(`input`);
 let adFormAddress = adForm.querySelector(`input[name="address"]`);
 let mapPinX = mapPin.offsetLeft - MAP_PIN_WIDTH / 2;
 let mapPinY = mapPin.offsetTop - MAP_PIN_HEIGHT / 2;
@@ -190,22 +191,30 @@ adFormCapacity.addEventListener(`input`, function () {
 
 // map.insertBefore(renderCard(offers[0]), mapFiltersContainer);
 
+// let dragged = false;
+
+let activateHandler = function () {
+  adFormAddress.value = `X: ` + mapPinX + `, Y: ` + mapPinY;
+  setActiveState();
+};
+
 let setDisactiveState = function () {
   map.classList.add(`map--faded`);
   adForm.classList.add(`ad-form--disabled`);
 
   for (let i = 0; i < adFormFieldsets.length; i++) {
-    adFormFieldsets[i].setAttribute(`disabled`, ``);
+    adFormFieldsets[i].disabled = true;
   }
 
   for (let i = 0; i < mapFiltersSelects.length; i++) {
-    mapFiltersSelects[i].setAttribute(`disabled`, ``);
+    mapFiltersSelects[i].disabled = true;
   }
 
-  mapPin.addEventListener(`mousedown`, function () {
-    adFormAddress.value = `X: ` + mapPinX + `, Y: ` + mapPinY;
-    setActiveState();
-  });
+  for (let i = 0; i < mapFiltersInputs.length; i++) {
+    mapFiltersInputs[i].disabled = true;
+  }
+
+  mapPin.addEventListener(`mousedown`, activateHandler);
 };
 
 setDisactiveState();
@@ -215,15 +224,21 @@ let setActiveState = function () {
   adForm.classList.remove(`ad-form--disabled`);
 
   for (let i = 0; i < adFormFieldsets.length; i++) {
-    adFormFieldsets[i].removeAttribute(`disabled`, ``);
+    adFormFieldsets[i].disabled = false;
   }
 
   for (let i = 0; i < mapFiltersSelects.length; i++) {
-    mapFiltersSelects[i].removeAttribute(`disabled`, ``);
+    mapFiltersSelects[i].disabled = false;
+  }
+
+  for (let i = 0; i < mapFiltersInputs.length; i++) {
+    mapFiltersInputs[i].disabled = false;
   }
 
   for (let i = 0; i < offers.length; i++) {
     fragment.appendChild(renderOffers(offers[i]));
   }
   mapPins.appendChild(fragment);
+
+  mapPin.removeEventListener(`mousedown`, activateHandler);
 };
