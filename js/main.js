@@ -3,6 +3,7 @@
 const OFFER_CHECKIN = [`12:00`, `13:00`, `14:00`];
 const OFFER_CHECKOUT = [`12:00`, `13:00`, `14:00`];
 const OFFER_TYPE = [`Дворец`, `Квартира`, `Дом`, `Бунгало`];
+const OFFER_TYPE_VALUE = [`palace`, `flat`, `house`, `bungalow`];
 const OFFER_FEATURES = [`wifi`, `dishwasher`, `parking`, `washer`, `elevator`, `conditioner`];
 const OFFER_DESCRIPTION = [`Великолепная квартира-студия в центре Токио.`, `Подходит как туристам, так и бизнесменам.`, `Квартира полностью укомплектована и недавно отремонтирована.`];
 const OFFER_PHOTOS = [
@@ -30,7 +31,7 @@ const CAPACITY = [3, 2, 1, 0];
 const TITLE_MAX_LENGTH = 100;
 const TITLE_MIN_LENGTH = 30;
 const MAX_PRICE = 1000000;
-const MIN_PRICE = 0;
+// let MIN_PRICE = 0;
 
 let getRandomItem = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -75,6 +76,7 @@ let getOfferArray = function (length) {
 
   for (let i = 0; i < length; i++) {
     array.push({
+      id: i,
       author: {
         avatar: `img/avatars/user0` + (i + 1) + `.png`,
       },
@@ -108,8 +110,6 @@ let map = document.querySelector(`.map`);
 let pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
 let cardTemplate = document.querySelector(`#card`).content.querySelector(`.popup`);
 
-let count = 0;
-
 let renderOffers = function (obj) {
   let pinElement = pinTemplate.cloneNode(true);
 
@@ -117,9 +117,7 @@ let renderOffers = function (obj) {
   pinElement.style.top = obj.location.y - PIN_HEIGHT + `px`;
   pinTemplate.querySelector(`img`).src = obj.author.avatar;
   pinTemplate.querySelector(`img`).alt = obj.offer.description;
-  pinElement.setAttribute(`data-col`, count);
-
-  count += 1;
+  pinElement.dataset.col = obj.id;
 
   return pinElement;
 };
@@ -215,32 +213,40 @@ adFormTitle.addEventListener(`input`, function () {
 });
 
 let adFormTypeText;
+let minPrice;
 
 adFormType.addEventListener(`change`, function () {
-  if (adFormType.value === OFFER_TYPE[1]) {
-    MIN_PRICE = 1000;
-    adFormPrice.setAttribute(`placeholder`, `${MIN_PRICE}`);
+  adFormPrice.setAttribute(`max`, MAX_PRICE);
+
+  if (adFormType.value === OFFER_TYPE_VALUE[1]) {
+    minPrice = 1000;
+    adFormPrice.setAttribute(`placeholder`, minPrice);
+    adFormPrice.setAttribute(`min`, minPrice);
     adFormTypeText = OFFER_TYPE[1];
-  } else if (adFormType.value === OFFER_TYPE[3]) {
-    MIN_PRICE = 0;
-    adFormPrice.setAttribute(`placeholder`, `${MIN_PRICE}`);
+  } else if (adFormType.value === OFFER_TYPE_VALUE[3]) {
+    minPrice = 0;
+    adFormPrice.setAttribute(`placeholder`, minPrice);
+    adFormPrice.setAttribute(`min`, minPrice);
     adFormTypeText = OFFER_TYPE[3];
-  } else if (adFormType.value === OFFER_TYPE[2]) {
-    MIN_PRICE = 5000;
-    adFormPrice.setAttribute(`placeholder`, `${MIN_PRICE}`);
+  } else if (adFormType.value === OFFER_TYPE_VALUE[2]) {
+    minPrice = 5000;
+    adFormPrice.setAttribute(`placeholder`, minPrice);
+    adFormPrice.setAttribute(`min`, minPrice);
     adFormTypeText = OFFER_TYPE[2];
-  } else if (adFormType.value === OFFER_TYPE[0]) {
-    MIN_PRICE = 10000;
-    adFormPrice.setAttribute(`placeholder`, `${MIN_PRICE}`);
+  } else if (adFormType.value === OFFER_TYPE_VALUE[0]) {
+    minPrice = 10000;
+    adFormPrice.setAttribute(`placeholder`, minPrice);
+    adFormPrice.setAttribute(`min`, minPrice);
     adFormTypeText = OFFER_TYPE[0];
   }
+  adFormType.reportValidity();
 });
 
 adFormPrice.addEventListener(`input`, function () {
   if (adFormPrice.value > MAX_PRICE) {
     adFormPrice.setCustomValidity(`Максимальная цена за ночь ${MAX_PRICE} руб.`);
-  } else if (adFormPrice.value < MIN_PRICE) {
-    adFormPrice.setCustomValidity(`Минимальная цена за ночь в типе жилья: ${adFormTypeText}, ${MIN_PRICE} руб.`);
+  } else if (adFormPrice.value < minPrice) {
+    adFormPrice.setCustomValidity(`Минимальная цена за ночь в типе жилья: ${adFormTypeText}, ${minPrice} руб.`);
   } else {
     adFormPrice.setCustomValidity(``);
   }
@@ -303,36 +309,44 @@ let setActiveState = function () {
   mapPins.appendChild(fragment);
 
   mapPin.removeEventListener(`mousedown`, activateHandler);
-};
 
-let mapPinHandler = function (evt) {
-  let pointer = evt.target.closest(`.map__pin`);
-  let mapCard = document.querySelector(`.map__card`);
-
-  if (pointer && !pointer.classList.contains(`map__pin--main`)) {
-    let pinAttr = pointer.attributes[3].value - 1;
-
-    if (!mapCard) {
-      fragment.appendChild(renderCard(offers[pinAttr]));
-      mapPins.appendChild(fragment);
-    } else {
+  let onCardEcsPress = function (evt) {
+    if (evt.key === `Escape`) {
+      let mapCard = map.querySelector(`.map__card`);
       mapCard.remove();
-      fragment.appendChild(renderCard(offers[pinAttr]));
-      mapPins.appendChild(fragment);
+      let pointerActive = map.querySelector(`.map__pin--active`);
+      pointerActive.classList.remove(`map__pin--active`);
+      document.removeEventListener(`keydown`, onCardEcsPress);
     }
+  };
 
-  } else if (evt.target.classList.value === `popup__close`) {
-    mapCard.remove();
-  }
-};
+  let mapPinHandler = function (evt) {
+    let pointer = evt.target.closest(`.map__pin`);
+    let mapCard = map.querySelector(`.map__card`);
 
-mapPins.addEventListener(`click`, mapPinHandler);
+    if (pointer && !pointer.classList.contains(`map__pin--main`)) {
+      let pinAttr = pointer.attributes[3].value;
 
-document.addEventListener(`keydown`, function (evt) {
-  let mapCard = document.querySelector(`.map__card`);
-  if (!evt.target.classList.contains(`map__pin--main`)) {
-    if (evt.key === `Escape` && mapCard) {
+      if (!mapCard) {
+        map.insertBefore(renderCard(offers[pinAttr]), mapPins);
+        pointer.classList.add(`map__pin--active`);
+        document.addEventListener(`keydown`, onCardEcsPress);
+      } else {
+        mapCard.remove();
+        document.removeEventListener(`keydown`, onCardEcsPress);
+        let pointerActive = map.querySelector(`.map__pin--active`);
+        pointerActive.classList.remove(`map__pin--active`);
+        map.insertBefore(renderCard(offers[pinAttr]), mapPins);
+        pointer.classList.add(`map__pin--active`);
+      }
+
+    } else if (evt.target.classList.value === `popup__close`) {
       mapCard.remove();
+      let pointerActive = map.querySelector(`.map__pin--active`);
+      pointerActive.classList.remove(`map__pin--active`);
+      document.removeEventListener(`keydown`, onCardEcsPress);
     }
-  }
-});
+  };
+
+  document.addEventListener(`click`, mapPinHandler);
+};
