@@ -31,7 +31,6 @@ const CAPACITY = [3, 2, 1, 0];
 const TITLE_MAX_LENGTH = 100;
 const TITLE_MIN_LENGTH = 30;
 const MAX_PRICE = 1000000;
-// let MIN_PRICE = 0;
 
 let getRandomItem = function (min, max) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -163,9 +162,7 @@ let renderCard = function (obj) {
 };
 
 let mapPins = map.querySelector(`.map__pins`);
-
 let fragment = document.createDocumentFragment();
-
 let mapPin = map.querySelector(`.map__pin--main`);
 let adForm = document.querySelector(`.ad-form`);
 let adFormFieldsets = adForm.querySelectorAll(`fieldset`);
@@ -174,7 +171,7 @@ let mapFilters = mapFiltersContainer.querySelector(`.map__filters`);
 let mapFiltersSelects = mapFilters.querySelectorAll(`select`);
 let mapFiltersInputs = mapFilters.querySelectorAll(`input`);
 let adFormAddress = adForm.querySelector(`input[name="address"]`);
-adFormAddress.setAttribute(`readonly`, `readonly`);
+adFormAddress.readonly = true;
 let mapPinX = mapPin.offsetLeft - MAP_PIN_WIDTH / 2;
 let mapPinY = mapPin.offsetTop - MAP_PIN_HEIGHT / 2;
 let adFormRooms = adForm.querySelector(`select[name="rooms"]`);
@@ -184,6 +181,8 @@ let adFormPrice = adForm.querySelector(`#price`);
 let adFormType = adForm.querySelector(`#type`);
 let adFormTimein = adForm.querySelector(`#timein`);
 let adFormTimeout = adForm.querySelector(`#timeout`);
+let adFormTypeText;
+let minPrice;
 
 adFormCapacity.addEventListener(`input`, function () {
   if (+adFormRooms.value === ROOMS[0] && +adFormCapacity.value !== CAPACITY[2]) {
@@ -212,33 +211,24 @@ adFormTitle.addEventListener(`input`, function () {
   adFormTitle.reportValidity();
 });
 
-let adFormTypeText;
-let minPrice;
-
 adFormType.addEventListener(`change`, function () {
   adFormPrice.setAttribute(`max`, MAX_PRICE);
 
   if (adFormType.value === OFFER_TYPE_VALUE[1]) {
     minPrice = 1000;
-    adFormPrice.setAttribute(`placeholder`, minPrice);
-    adFormPrice.setAttribute(`min`, minPrice);
     adFormTypeText = OFFER_TYPE[1];
   } else if (adFormType.value === OFFER_TYPE_VALUE[3]) {
     minPrice = 0;
-    adFormPrice.setAttribute(`placeholder`, minPrice);
-    adFormPrice.setAttribute(`min`, minPrice);
     adFormTypeText = OFFER_TYPE[3];
   } else if (adFormType.value === OFFER_TYPE_VALUE[2]) {
     minPrice = 5000;
-    adFormPrice.setAttribute(`placeholder`, minPrice);
-    adFormPrice.setAttribute(`min`, minPrice);
     adFormTypeText = OFFER_TYPE[2];
   } else if (adFormType.value === OFFER_TYPE_VALUE[0]) {
     minPrice = 10000;
-    adFormPrice.setAttribute(`placeholder`, minPrice);
-    adFormPrice.setAttribute(`min`, minPrice);
     adFormTypeText = OFFER_TYPE[0];
   }
+  adFormPrice.placeholder = `` + minPrice;
+  adFormPrice.min = minPrice;
   adFormType.reportValidity();
 });
 
@@ -266,27 +256,6 @@ let activateHandler = function () {
   setActiveState();
 };
 
-let setDisactiveState = function () {
-  map.classList.add(`map--faded`);
-  adForm.classList.add(`ad-form--disabled`);
-
-  for (let i = 0; i < adFormFieldsets.length; i++) {
-    adFormFieldsets[i].disabled = true;
-  }
-
-  for (let i = 0; i < mapFiltersSelects.length; i++) {
-    mapFiltersSelects[i].disabled = true;
-  }
-
-  for (let i = 0; i < mapFiltersInputs.length; i++) {
-    mapFiltersInputs[i].disabled = true;
-  }
-
-  mapPin.addEventListener(`mousedown`, activateHandler);
-};
-
-setDisactiveState();
-
 let setActiveState = function () {
   map.classList.remove(`map--faded`);
   adForm.classList.remove(`ad-form--disabled`);
@@ -306,47 +275,74 @@ let setActiveState = function () {
   for (let i = 0; i < offers.length; i++) {
     fragment.appendChild(renderOffers(offers[i]));
   }
+
   mapPins.appendChild(fragment);
 
   mapPin.removeEventListener(`mousedown`, activateHandler);
 
-  let onCardEcsPress = function (evt) {
-    if (evt.key === `Escape`) {
-      let mapCard = map.querySelector(`.map__card`);
-      mapCard.remove();
-      let pointerActive = map.querySelector(`.map__pin--active`);
-      pointerActive.classList.remove(`map__pin--active`);
-      document.removeEventListener(`keydown`, onCardEcsPress);
-    }
-  };
-
-  let mapPinHandler = function (evt) {
-    let pointer = evt.target.closest(`.map__pin`);
-    let mapCard = map.querySelector(`.map__card`);
-
-    if (pointer && !pointer.classList.contains(`map__pin--main`)) {
-      let pinAttr = pointer.attributes[3].value;
-
-      if (!mapCard) {
-        map.insertBefore(renderCard(offers[pinAttr]), mapPins);
-        pointer.classList.add(`map__pin--active`);
-        document.addEventListener(`keydown`, onCardEcsPress);
-      } else {
-        mapCard.remove();
-        document.removeEventListener(`keydown`, onCardEcsPress);
-        let pointerActive = map.querySelector(`.map__pin--active`);
-        pointerActive.classList.remove(`map__pin--active`);
-        map.insertBefore(renderCard(offers[pinAttr]), mapPins);
-        pointer.classList.add(`map__pin--active`);
-      }
-
-    } else if (evt.target.classList.value === `popup__close`) {
-      mapCard.remove();
-      let pointerActive = map.querySelector(`.map__pin--active`);
-      pointerActive.classList.remove(`map__pin--active`);
-      document.removeEventListener(`keydown`, onCardEcsPress);
-    }
-  };
-
-  document.addEventListener(`click`, mapPinHandler);
+  map.addEventListener(`click`, mapPinHandler);
 };
+
+let setDisactiveState = function () {
+  map.classList.add(`map--faded`);
+  adForm.classList.add(`ad-form--disabled`);
+
+  for (let i = 0; i < adFormFieldsets.length; i++) {
+    adFormFieldsets[i].disabled = true;
+  }
+
+  for (let i = 0; i < mapFiltersSelects.length; i++) {
+    mapFiltersSelects[i].disabled = true;
+  }
+
+  for (let i = 0; i < mapFiltersInputs.length; i++) {
+    mapFiltersInputs[i].disabled = true;
+  }
+
+  mapPin.addEventListener(`mousedown`, activateHandler);
+};
+
+let cardCloseHandler = function () {
+  let mapCard = map.querySelector(`.map__card`);
+  mapCard.remove();
+  let pointerActive = map.querySelector(`.map__pin--active`);
+  pointerActive.classList.remove(`map__pin--active`);
+  document.removeEventListener(`keydown`, cardEcsHandler);
+};
+
+let cardEcsHandler = function (evt) {
+  if (evt.key === `Escape`) {
+    let mapCard = map.querySelector(`.map__card`);
+    mapCard.remove();
+    let pointerActive = map.querySelector(`.map__pin--active`);
+    pointerActive.classList.remove(`map__pin--active`);
+    document.removeEventListener(`keydown`, cardEcsHandler);
+  }
+};
+
+let mapPinHandler = function (evt) {
+  let pointer = evt.target.closest(`.map__pin`);
+  let mapCard = map.querySelector(`.map__card`);
+
+  if (pointer && !pointer.classList.contains(`map__pin--main`)) {
+    let pinAttr = pointer.attributes[3].value;
+    if (!mapCard) {
+      map.insertBefore(renderCard(offers[pinAttr]), mapPins);
+      pointer.classList.add(`map__pin--active`);
+      document.addEventListener(`keydown`, cardEcsHandler);
+      let cardClose = map.querySelector(`.popup__close`);
+      cardClose.addEventListener(`click`, cardCloseHandler);
+    } else {
+      mapCard.remove();
+      document.removeEventListener(`keydown`, cardEcsHandler);
+      let cardClose = map.querySelector(`.popup__close`);
+      cardClose.removeEventListener(`click`, cardCloseHandler);
+      let pointerActive = map.querySelector(`.map__pin--active`);
+      pointerActive.classList.remove(`map__pin--active`);
+      map.insertBefore(renderCard(offers[pinAttr]), mapPins);
+      pointer.classList.add(`map__pin--active`);
+    }
+  }
+};
+
+setDisactiveState();
