@@ -312,12 +312,16 @@ let cardCloseHandler = function () {
 
 let cardEcsHandler = function (evt) {
   if (evt.key === `Escape`) {
-    let mapCard = map.querySelector(`.map__card`);
-    mapCard.remove();
-    let pointerActive = map.querySelector(`.map__pin--active`);
-    pointerActive.classList.remove(`map__pin--active`);
-    document.removeEventListener(`keydown`, cardEcsHandler);
+    cardCloseHandler();
   }
+};
+
+let cardOpenHandler = function (pinAttr, pointer) {
+  map.insertBefore(renderCard(offers[pinAttr]), mapPins);
+  pointer.classList.add(`map__pin--active`);
+  document.addEventListener(`keydown`, cardEcsHandler);
+  let cardClose = map.querySelector(`.popup__close`);
+  cardClose.addEventListener(`click`, cardCloseHandler);
 };
 
 let mapPinHandler = function (evt) {
@@ -327,20 +331,10 @@ let mapPinHandler = function (evt) {
   if (pointer && !pointer.classList.contains(`map__pin--main`)) {
     let pinAttr = pointer.attributes[3].value;
     if (!mapCard) {
-      map.insertBefore(renderCard(offers[pinAttr]), mapPins);
-      pointer.classList.add(`map__pin--active`);
-      document.addEventListener(`keydown`, cardEcsHandler);
-      let cardClose = map.querySelector(`.popup__close`);
-      cardClose.addEventListener(`click`, cardCloseHandler);
+      cardOpenHandler(pinAttr, pointer);
     } else {
-      mapCard.remove();
-      document.removeEventListener(`keydown`, cardEcsHandler);
-      let cardClose = map.querySelector(`.popup__close`);
-      cardClose.removeEventListener(`click`, cardCloseHandler);
-      let pointerActive = map.querySelector(`.map__pin--active`);
-      pointerActive.classList.remove(`map__pin--active`);
-      map.insertBefore(renderCard(offers[pinAttr]), mapPins);
-      pointer.classList.add(`map__pin--active`);
+      cardCloseHandler();
+      cardOpenHandler(pinAttr, pointer);
     }
   }
 };
