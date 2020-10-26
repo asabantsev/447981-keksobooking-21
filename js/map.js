@@ -16,11 +16,8 @@
   let mapFiltersInputs = mapFilters.querySelectorAll(`input`);
   let adFormAddress = adForm.querySelector(`input[name="address"]`);
   adFormAddress.readonly = true;
-  let mapPinX = mapPin.offsetLeft - MAP_PIN_WIDTH / 2;
-  let mapPinY = mapPin.offsetTop - MAP_PIN_HEIGHT / 2;
 
   let activateHandler = function () {
-    adFormAddress.value = `X: ` + mapPinX + `, Y: ` + mapPinY;
     setActiveState();
   };
 
@@ -67,7 +64,58 @@
       mapFiltersInputs[i].disabled = true;
     }
 
-    mapPin.addEventListener(`mousedown`, activateHandler);
+    mapPin.addEventListener(`click`, activateHandler);
+
+    mapPin.addEventListener(`mousedown`, function (evt) {
+      evt.preventDefault();
+
+      let startCoords = {
+        x: evt.clientX,
+        y: evt.clientY
+      };
+
+      let mouseMoveHandler = function (moveEvt) {
+        moveEvt.preventDefault();
+
+        let shift = {
+          x: startCoords.x - moveEvt.clientX,
+          y: startCoords.y - moveEvt.clientY
+        };
+
+        startCoords = {
+          x: moveEvt.clientX,
+          y: moveEvt.clientY,
+        };
+
+        mapPin.style.top = (mapPin.offsetTop - shift.y) + `px`;
+        mapPin.style.left = (mapPin.offsetLeft - shift.x) + `px`;
+
+        window.mapPinFormValueX = (mapPin.offsetLeft - shift.x + MAP_PIN_WIDTH / 2);
+        window.mapPinFormValueY = (mapPin.offsetTop - shift.y + MAP_PIN_HEIGHT);
+
+        if (window.mapPinFormValueY <= window.OFFER_LOCATION_Y_MIN || window.mapPinFormValueY >= window.OFFER_LOCATION_Y_MAX) {
+          document.removeEventListener(`mousemove`, mouseMoveHandler);
+        } else if (window.mapPinFormValueX <= window.OFFER_LOCATION_X_MIN || window.mapPinFormValueX >= window.OFFER_LOCATION_X_MAX) {
+          document.removeEventListener(`mousemove`, mouseMoveHandler);
+        }
+
+        let mapCard = map.querySelector(`.map__card`);
+        if (mapCard) {
+          cardCloseHandler();
+        }
+      };
+
+      let mouseUpHandler = function (upEvt) {
+        upEvt.preventDefault();
+        adFormAddress.value = `X: ` + window.mapPinFormValueX + ` px` + `, Y: ` + window.mapPinFormValueY + ` px`;
+
+        document.removeEventListener(`mousemove`, mouseMoveHandler);
+        document.removeEventListener(`mouseup`, mouseUpHandler);
+      };
+
+      document.addEventListener(`mousemove`, mouseMoveHandler);
+      document.addEventListener(`mouseup`, mouseUpHandler);
+    });
   };
 
   let cardCloseHandler = function () {
