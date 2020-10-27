@@ -3,6 +3,10 @@
 (function () {
   const MAP_PIN_WIDTH = 65;
   const MAP_PIN_HEIGHT = 65;
+  const OFFER_LOCATION_X_MIN = 130;
+  const OFFER_LOCATION_X_MAX = 1070;
+  const OFFER_LOCATION_Y_MIN = 130;
+  const OFFER_LOCATION_Y_MAX = 630;
 
   let map = document.querySelector(`.map`);
   let mapPins = map.querySelector(`.map__pins`);
@@ -16,11 +20,8 @@
   let mapFiltersInputs = mapFilters.querySelectorAll(`input`);
   let adFormAddress = adForm.querySelector(`input[name="address"]`);
   adFormAddress.readonly = true;
-  let mapPinX = mapPin.offsetLeft - MAP_PIN_WIDTH / 2;
-  let mapPinY = mapPin.offsetTop - MAP_PIN_HEIGHT / 2;
 
   let activateHandler = function () {
-    adFormAddress.value = `X: ` + mapPinX + `, Y: ` + mapPinY;
     setActiveState();
   };
 
@@ -49,6 +50,56 @@
     mapPin.removeEventListener(`mousedown`, activateHandler);
 
     map.addEventListener(`click`, mapPinHandler);
+
+    mapPin.addEventListener(`mousedown`, function (evt) {
+      evt.preventDefault();
+
+      let startCoords = {
+        x: evt.clientX,
+        y: evt.clientY
+      };
+
+      let mouseMoveHandler = function (moveEvt) {
+        moveEvt.preventDefault();
+
+        let shift = {
+          x: startCoords.x - moveEvt.clientX,
+          y: startCoords.y - moveEvt.clientY
+        };
+
+        startCoords = {
+          x: moveEvt.clientX,
+          y: moveEvt.clientY,
+        };
+
+        mapPin.style.top = (mapPin.offsetTop - shift.y) + `px`;
+        mapPin.style.left = (mapPin.offsetLeft - shift.x) + `px`;
+
+        let currentY = mapPin.offsetTop - shift.y;
+        let currentX = mapPin.offsetLeft - shift.x;
+
+        if (currentX < OFFER_LOCATION_X_MIN) {
+          mapPin.style.left = OFFER_LOCATION_X_MIN + `px`;
+        } else if (currentX > OFFER_LOCATION_X_MAX) {
+          mapPin.style.left = OFFER_LOCATION_X_MAX + `px`;
+        } else if (currentY < OFFER_LOCATION_Y_MIN) {
+          mapPin.style.top = OFFER_LOCATION_Y_MIN + `px`;
+        } else if (currentY > OFFER_LOCATION_Y_MAX) {
+          mapPin.style.top = OFFER_LOCATION_Y_MAX + `px`;
+        }
+        adFormAddress.value = `X: ` + (currentX - MAP_PIN_WIDTH / 2) + ` px` + `, Y: ` + (currentY - MAP_PIN_HEIGHT) + ` px`;
+      };
+
+      let mouseUpHandler = function (upEvt) {
+        upEvt.preventDefault();
+
+        document.removeEventListener(`mousemove`, mouseMoveHandler);
+        document.removeEventListener(`mouseup`, mouseUpHandler);
+      };
+
+      document.addEventListener(`mousemove`, mouseMoveHandler);
+      document.addEventListener(`mouseup`, mouseUpHandler);
+    });
   };
 
   window.setDisactiveState = function () {
@@ -67,7 +118,7 @@
       mapFiltersInputs[i].disabled = true;
     }
 
-    mapPin.addEventListener(`mousedown`, activateHandler);
+    mapPin.addEventListener(`click`, activateHandler);
   };
 
   let cardCloseHandler = function () {
