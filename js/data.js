@@ -15,10 +15,10 @@
   const OFFER_ROOMS_MAX = 3;
   const OFFER_PRICE_MIN = 0;
   const OFFER_PRICE_MAX = 10000;
-  window.OFFER_LOCATION_X_MIN = 130;
-  window.OFFER_LOCATION_X_MAX = 1070;
-  window.OFFER_LOCATION_Y_MIN = 130;
-  window.OFFER_LOCATION_Y_MAX = 630;
+  const OFFER_LOCATION_X_MIN = 130;
+  const OFFER_LOCATION_X_MAX = 1070;
+  const OFFER_LOCATION_Y_MIN = 130;
+  const OFFER_LOCATION_Y_MAX = 630;
   const OFFER_COUNT = 8;
 
   let getRandomItem = function (min, max) {
@@ -30,8 +30,8 @@
 
     for (let i = 0; i < length; i++) {
       array.push({
-        x: getRandomItem(window.OFFER_LOCATION_X_MIN, window.OFFER_LOCATION_X_MAX),
-        y: getRandomItem(window.OFFER_LOCATION_Y_MIN, window.OFFER_LOCATION_Y_MAX),
+        x: getRandomItem(OFFER_LOCATION_X_MIN, OFFER_LOCATION_X_MAX),
+        y: getRandomItem(OFFER_LOCATION_Y_MIN, OFFER_LOCATION_Y_MAX),
       });
     }
 
