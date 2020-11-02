@@ -88,7 +88,6 @@
   });
 
   let uploadSuccessHandler = () => {
-    // Если отправка данных прошла успешно, показывается соответствующее сообщение. Разметка сообщения находится блоке #success внутри шаблона template. Сообщение должно исчезать по нажатию на клавишу Esc и по клику на произвольную область экрана.
     let successMessageTemplate = document.querySelector(`#success`).content.querySelector(`.success`);
 
     let renderSuccessMessage = () => {
