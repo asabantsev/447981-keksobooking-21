@@ -6,7 +6,7 @@
 
   let cardTemplate = document.querySelector(`#card`).content.querySelector(`.popup`);
 
-  window.renderCard = function (obj) {
+  window.renderCard = (obj) => {
     let cardElement = cardTemplate.cloneNode(true);
 
     cardElement.querySelector(`.popup__title`).textContent = obj.offer.title;

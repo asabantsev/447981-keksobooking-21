@@ -19,7 +19,7 @@
   let adFormTypeText;
   let minPrice;
 
-  adFormCapacity.addEventListener(`input`, function () {
+  adFormCapacity.addEventListener(`input`, () => {
     if (+adFormRooms.value === ROOMS[0] && +adFormCapacity.value !== CAPACITY[2]) {
       adFormCapacity.setCustomValidity(`Необходимо выбрать 1-го гостя`);
     } else if (+adFormRooms.value === ROOMS[1] && +adFormCapacity.value !== CAPACITY[2] && +adFormCapacity.value !== CAPACITY[1]) {
@@ -35,7 +35,7 @@
     adFormCapacity.reportValidity();
   });
 
-  adFormTitle.addEventListener(`input`, function () {
+  adFormTitle.addEventListener(`input`, () => {
     if (adFormTitle.value.length < TITLE_MIN_LENGTH) {
       adFormTitle.setCustomValidity(`Заголовок объявления должен быть больше ${TITLE_MIN_LENGTH} символов. Сейчас ${adFormTitle.value.length}.`);
     } else if (adFormTitle.value.length > TITLE_MAX_LENGTH) {
@@ -46,7 +46,7 @@
     adFormTitle.reportValidity();
   });
 
-  adFormType.addEventListener(`change`, function () {
+  adFormType.addEventListener(`change`, () => {
     adFormPrice.setAttribute(`max`, MAX_PRICE);
 
     if (adFormType.value === OFFER_TYPE_VALUE[1]) {
@@ -67,7 +67,7 @@
     adFormType.reportValidity();
   });
 
-  adFormPrice.addEventListener(`input`, function () {
+  adFormPrice.addEventListener(`input`, () => {
     if (adFormPrice.value > MAX_PRICE) {
       adFormPrice.setCustomValidity(`Максимальная цена за ночь ${MAX_PRICE} руб.`);
     } else if (adFormPrice.value < minPrice) {
@@ -78,11 +78,11 @@
     adFormPrice.reportValidity();
   });
 
-  adFormTimein.addEventListener(`change`, function (evt) {
+  adFormTimein.addEventListener(`change`, (evt) => {
     adFormTimeout.value = evt.target.value;
   });
 
-  adFormTimeout.addEventListener(`change`, function (evt) {
+  adFormTimeout.addEventListener(`change`, (evt) => {
     adFormTimein.value = evt.target.value;
   });
 })();
