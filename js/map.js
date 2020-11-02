@@ -20,6 +20,42 @@
   let adFormAddress = adForm.querySelector(`input[name="address"]`);
   adFormAddress.readonly = true;
 
+  let loadSuccessHandler = (data) => {
+    const addIdToSourceData = (array) => {
+      return array.map((item, index) => {
+        item.offer.id = index;
+
+        return item;
+      });
+    };
+
+    window.offers = addIdToSourceData(data);
+
+    let fragment = document.createDocumentFragment();
+
+    for (let i = 0; i < window.offers.length; i++) {
+      fragment.appendChild(window.renderOffers(window.offers[i]));
+    }
+
+    mapPins.appendChild(fragment);
+  };
+
+  let loadErrorHandler = (errorMessage) => {
+    let node = document.createElement(`div`);
+
+    node.style.zIndex = 100;
+    node.style.margin = `0 auto`;
+    node.style.textAlign = `center`;
+    node.style.backgroundColor = `red`;
+    node.style.position = `absolute`;
+    node.style.left = 0;
+    node.style.right = 0;
+    node.style.fontSize = `30px`;
+
+    node.textContent = errorMessage;
+    document.body.insertAdjacentElement(`afterbegin`, node);
+  };
+
   let activateHandler = () => {
     setActiveState();
   };
@@ -40,15 +76,7 @@
       mapFiltersInputs[i].disabled = false;
     }
 
-    window.load(function () {
-      let fragment = document.createDocumentFragment();
-
-      for (let i = 0; i < window.offers.length; i++) {
-        fragment.appendChild(window.renderOffers(window.offers[i]));
-      }
-
-      mapPins.appendChild(fragment);
-    }, function () {});
+    window.load(loadSuccessHandler, loadErrorHandler);
 
     mapPin.removeEventListener(`click`, activateHandler);
 
