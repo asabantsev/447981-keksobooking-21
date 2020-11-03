@@ -16,6 +16,7 @@
   let adFormType = adForm.querySelector(`#type`);
   let adFormTimein = adForm.querySelector(`#timein`);
   let adFormTimeout = adForm.querySelector(`#timeout`);
+  let adFormReset = adForm.querySelector(`.ad-form__reset`);
   let adFormTypeText;
   let minPrice;
 
@@ -84,5 +85,72 @@
 
   adFormTimeout.addEventListener(`change`, (evt) => {
     adFormTimein.value = evt.target.value;
+  });
+
+  let uploadSuccessHandler = () => {
+    let successMessageTemplate = document.querySelector(`#success`).content.querySelector(`.success`);
+
+    let renderSuccessMessage = () => {
+      let successMessageElement = successMessageTemplate.cloneNode(true);
+
+      document.addEventListener(`keydown`, (evt) => {
+        if (evt.key === `Escape`) {
+          successMessageElement.remove();
+        }
+      });
+
+      document.addEventListener(`click`, () => {
+        successMessageElement.remove();
+      });
+
+      return successMessageElement;
+    };
+
+    let fragment = document.createDocumentFragment();
+    fragment.appendChild(renderSuccessMessage());
+    document.querySelector(`main`).appendChild(fragment);
+
+    adForm.reset();
+    window.setDisactiveState();
+  };
+
+  let uploadErrorHandler = () => {
+    let errorMessageTemplate = document.querySelector(`#error`).content.querySelector(`.error`);
+
+    let renderErrorMessage = () => {
+      let errorMessageElement = errorMessageTemplate.cloneNode(true);
+
+      let errorMessageButton = errorMessageElement.querySelector(`.error__button`);
+
+      errorMessageButton.addEventListener(`click`, () => {
+        errorMessageElement.remove();
+      });
+
+      document.addEventListener(`keydown`, (evt) => {
+        if (evt.key === `Escape`) {
+          errorMessageElement.remove();
+        }
+      });
+
+      document.addEventListener(`click`, () => {
+        errorMessageElement.remove();
+      });
+
+      return errorMessageElement;
+    };
+
+    let fragment = document.createDocumentFragment();
+    fragment.appendChild(renderErrorMessage());
+    document.querySelector(`main`).appendChild(fragment);
+  };
+
+  adForm.addEventListener(`submit`, (evt) => {
+    window.upload(new FormData(adForm), uploadSuccessHandler, uploadErrorHandler);
+
+    evt.preventDefault();
+  });
+
+  adFormReset.addEventListener(`click`, () => {
+    adForm.reset();
   });
 })();
