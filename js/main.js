@@ -1,3 +1,3 @@
 'use strict';
 
-window.setDisactiveState();
+window.map.setDisactiveState();

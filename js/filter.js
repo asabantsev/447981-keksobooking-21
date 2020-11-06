@@ -2,11 +2,29 @@
 
 (function () {
   const PINS_LIMIT = 5;
+  const PRICE_RANGE = {
+    LOW: {
+      MIN: 0,
+      MAX: 10000
+    },
+    MIDDLE: {
+      MIN: 10000,
+      MAX: 50000
+    },
+    HIGH: {
+      MIN: 50000,
+      MAX: Infinity
+    }
+  };
 
   let mapFilters = document.querySelector(`.map__filters`);
   let mapFiltersSelects = mapFilters.querySelectorAll(`select`);
   let mapFiltersInputs = mapFilters.querySelectorAll(`input`);
   let typeSelect = mapFilters.querySelector(`#housing-type`);
+  let priceSelect = mapFilters.querySelector(`#housing-price`);
+  let roomsSelect = mapFilters.querySelector(`#housing-rooms`);
+  let guestsSelect = mapFilters.querySelector(`#housing-guests`);
+  let featuresFieldset = mapFilters.querySelector(`#housing-features`);
   let data = [];
   let filteredData = [];
 
@@ -18,33 +36,64 @@
     return filtrationItem(typeSelect, obj.offer, `type`);
   };
 
-  let filterChangeHandler = () => {
-    filteredData = data.slice(0);
-    filteredData = filteredData.filter(filtrationByType);
-    window.cardRemoveHandler();
-    window.pinsRemoveHandler();
-    window.renderPinsMarkup(filteredData.slice(0, PINS_LIMIT));
+  let filtrationByPrice = (obj) => {
+    let filteringPrice = PRICE_RANGE[priceSelect.value.toUpperCase()];
+
+    return filteringPrice ? obj.offer.price >= filteringPrice.MIN && obj.offer.price <= filteringPrice.MAX : true;
   };
 
-  window.setFiltersActive = () => {
-    for (let i = 0; i < mapFiltersSelects.length; i++) {
-      mapFiltersSelects[i].disabled = false;
-    }
+  let filtrationByRooms = (obj) => {
+    return filtrationItem(roomsSelect, obj.offer, `rooms`);
+  };
 
-    for (let i = 0; i < mapFiltersInputs.length; i++) {
-      mapFiltersInputs[i].disabled = false;
-    }
+  let filtrationByGuests = (obj) => {
+    return filtrationItem(guestsSelect, obj.offer, `guests`);
+  };
+
+  let filtrationByFeatures = (obj) => {
+    let checkedFeaturesItems = featuresFieldset.querySelectorAll(`input:checked`);
+
+    return Array.from(checkedFeaturesItems).every((element) => {
+      return obj.offer.features.includes(element.value);
+    });
+  };
+
+  let resetFilter = () => {
+    mapFiltersSelects.forEach((it) => {
+      it.value = `any`;
+    });
+    mapFiltersInputs.forEach((feature) => {
+      feature.checked = false;
+    });
+  };
+
+  let filterChangeHandler = window.util.debounce(() => {
+    filteredData = data.slice(0);
+    filteredData = filteredData.filter(filtrationByType).filter(filtrationByPrice).filter(filtrationByRooms).filter(filtrationByGuests).filter(filtrationByFeatures);
+    window.map.cardRemoveHandler();
+    window.map.pinsRemoveHandler();
+    window.map.renderPinsMarkup(filteredData.slice(0, PINS_LIMIT));
+  });
+
+  let setFiltersActive = () => {
+    mapFiltersSelects.forEach((item) => {
+      item.disabled = false;
+    });
+
+    mapFiltersInputs.forEach((item) => {
+      item.disabled = false;
+    });
 
     mapFilters.addEventListener(`change`, filterChangeHandler);
   };
 
-  window.activateFiltration = (offerdata) => {
+  let activateFiltration = (offerdata) => {
     data = offerdata.slice(0);
-    window.setFiltersActive();
+    window.filter.setFiltersActive();
     return offerdata.slice(0, PINS_LIMIT);
   };
 
-  window.setFiltersDisactive = () => {
+  let setFiltersDisactive = () => {
     for (let i = 0; i < mapFiltersSelects.length; i++) {
       mapFiltersSelects[i].disabled = true;
     }
@@ -53,6 +102,13 @@
       mapFiltersInputs[i].disabled = true;
     }
 
+    resetFilter();
     mapFilters.removeEventListener(`change`, filterChangeHandler);
+  };
+
+  window.filter = {
+    setFiltersActive,
+    activateFiltration,
+    setFiltersDisactive
   };
 })();

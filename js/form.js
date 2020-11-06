@@ -28,7 +28,6 @@
   let adFormTimein = adForm.querySelector(`#timein`);
   let adFormTimeout = adForm.querySelector(`#timeout`);
   let adFormReset = adForm.querySelector(`.ad-form__reset`);
-  let adFormTypeText = OFFER_TYPE_VALUE[adFormType.value];
   let minPrice;
 
   adFormCapacity.addEventListener(`input`, () => {
@@ -67,6 +66,8 @@
   });
 
   adFormPrice.addEventListener(`input`, () => {
+    let adFormTypeText = OFFER_TYPE_VALUE[adFormType.value];
+
     if (adFormPrice.value > MAX_PRICE) {
       adFormPrice.setCustomValidity(`Максимальная цена за ночь ${MAX_PRICE} руб.`);
     } else if (adFormPrice.value < minPrice) {
@@ -107,7 +108,7 @@
     document.querySelector(`main`).appendChild(renderSuccessMessage);
 
     adForm.reset();
-    window.setDisactiveState();
+    window.map.setDisactiveState();
   };
 
   let uploadErrorHandler = () => {
@@ -146,7 +147,7 @@
 
   adFormReset.addEventListener(`click`, () => {
     adForm.reset();
-    window.setDisactiveState();
-    window.getDefaultPinPosition();
+    window.map.setDisactiveState();
+    window.map.getDefaultPinPosition();
   });
 })();

@@ -6,7 +6,7 @@
 
   let pinTemplate = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
 
-  window.renderOffers = (obj) => {
+  let renderOffers = (obj) => {
     let pinElement = pinTemplate.cloneNode(true);
 
     pinElement.style.left = obj.location.x - PIN_WIDTH / 2 + `px`;
@@ -16,5 +16,9 @@
     pinElement.dataset.id = obj.offer.id;
 
     return pinElement;
+  };
+
+  window.pin = {
+    renderOffers,
   };
 })();

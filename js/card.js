@@ -6,7 +6,7 @@
 
   let cardTemplate = document.querySelector(`#card`).content.querySelector(`.popup`);
 
-  window.renderCard = (obj) => {
+  let renderCard = (obj) => {
     let cardElement = cardTemplate.cloneNode(true);
 
     cardElement.querySelector(`.popup__title`).textContent = obj.offer.title;
@@ -44,5 +44,9 @@
     cardElement.querySelector(`.popup__avatar`).src = obj.author.avatar;
 
     return cardElement;
+  };
+
+  window.card = {
+    renderCard,
   };
 })();
