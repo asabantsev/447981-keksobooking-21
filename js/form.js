@@ -1,7 +1,18 @@
 'use strict';
 
 (function () {
-  const OFFER_TYPE_VALUE = [`palace`, `flat`, `house`, `bungalow`];
+  const OFFER_TYPE_VALUE = {
+    'palace': `дворец`,
+    'flat': `квартира`,
+    'house': `дом`,
+    'bungalow': `бунгало`
+  };
+  const OFFER_TYPE_PRICE = {
+    'palace': 10000,
+    'flat': 1000,
+    'house': 5000,
+    'bungalow': 0
+  };
   const ROOMS = [1, 2, 3, 100];
   const CAPACITY = [3, 2, 1, 0];
   const TITLE_MAX_LENGTH = 100;
@@ -17,7 +28,7 @@
   let adFormTimein = adForm.querySelector(`#timein`);
   let adFormTimeout = adForm.querySelector(`#timeout`);
   let adFormReset = adForm.querySelector(`.ad-form__reset`);
-  let adFormTypeText;
+  let adFormTypeText = OFFER_TYPE_VALUE[adFormType.value];
   let minPrice;
 
   adFormCapacity.addEventListener(`input`, () => {
@@ -49,20 +60,7 @@
 
   adFormType.addEventListener(`change`, () => {
     adFormPrice.setAttribute(`max`, MAX_PRICE);
-
-    if (adFormType.value === OFFER_TYPE_VALUE[1]) {
-      minPrice = 1000;
-      adFormTypeText = window.OFFER_TYPE[1];
-    } else if (adFormType.value === OFFER_TYPE_VALUE[3]) {
-      minPrice = 0;
-      adFormTypeText = window.OFFER_TYPE[3];
-    } else if (adFormType.value === OFFER_TYPE_VALUE[2]) {
-      minPrice = 5000;
-      adFormTypeText = window.OFFER_TYPE[2];
-    } else if (adFormType.value === OFFER_TYPE_VALUE[0]) {
-      minPrice = 10000;
-      adFormTypeText = window.OFFER_TYPE[0];
-    }
+    minPrice = OFFER_TYPE_PRICE[adFormType.value];
     adFormPrice.placeholder = `` + minPrice;
     adFormPrice.min = minPrice;
     adFormType.reportValidity();
@@ -106,9 +104,7 @@
       return successMessageElement;
     };
 
-    let fragment = document.createDocumentFragment();
-    fragment.appendChild(renderSuccessMessage());
-    document.querySelector(`main`).appendChild(fragment);
+    document.querySelector(`main`).appendChild(renderSuccessMessage);
 
     adForm.reset();
     window.setDisactiveState();
@@ -139,9 +135,7 @@
       return errorMessageElement;
     };
 
-    let fragment = document.createDocumentFragment();
-    fragment.appendChild(renderErrorMessage());
-    document.querySelector(`main`).appendChild(fragment);
+    document.querySelector(`main`).appendChild(renderErrorMessage);
   };
 
   adForm.addEventListener(`submit`, (evt) => {
@@ -152,5 +146,7 @@
 
   adFormReset.addEventListener(`click`, () => {
     adForm.reset();
+    window.setDisactiveState();
+    window.getDefaultPinPosition();
   });
 })();
