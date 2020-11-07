@@ -18,16 +18,72 @@
   let defaultPinX = mapPin.style.left;
   let defaultPinY = mapPin.style.top;
 
-  window.getDefaultPinPosition = () => {
+  let getDefaultPinPosition = () => {
     mapPin.style.left = defaultPinX;
     mapPin.style.top = defaultPinY;
   };
 
-  window.renderPinsMarkup = (pinsData) => {
+  mapPin.addEventListener(`mousedown`, (evt) => {
+    evt.preventDefault();
+
+    let startCoords = {
+      x: evt.clientX,
+      y: evt.clientY
+    };
+
+    let mouseMoveHandler = (moveEvt) => {
+      moveEvt.preventDefault();
+
+      let shift = {
+        x: startCoords.x - moveEvt.clientX,
+        y: startCoords.y - moveEvt.clientY
+      };
+
+      startCoords = {
+        x: moveEvt.clientX,
+        y: moveEvt.clientY,
+      };
+
+      mapPin.style.top = (mapPin.offsetTop - shift.y) + `px`;
+      mapPin.style.left = (mapPin.offsetLeft - shift.x) + `px`;
+
+      let currentY = mapPin.offsetTop - shift.y;
+      let currentX = mapPin.offsetLeft - shift.x;
+
+      if (currentX < OFFER_LOCATION_X_MIN) {
+        mapPin.style.left = OFFER_LOCATION_X_MIN + `px`;
+      }
+
+      if (currentX > OFFER_LOCATION_X_MAX) {
+        mapPin.style.left = OFFER_LOCATION_X_MAX + `px`;
+      }
+
+      if (currentY < OFFER_LOCATION_Y_MIN) {
+        mapPin.style.top = OFFER_LOCATION_Y_MIN + `px`;
+      }
+
+      if (currentY > OFFER_LOCATION_Y_MAX) {
+        mapPin.style.top = OFFER_LOCATION_Y_MAX + `px`;
+      }
+      adFormAddress.value = `X: ` + (currentX - MAP_PIN_WIDTH / 2) + ` px` + `, Y: ` + (currentY - MAP_PIN_HEIGHT) + ` px`;
+    };
+
+    let mouseUpHandler = (upEvt) => {
+      upEvt.preventDefault();
+
+      document.removeEventListener(`mousemove`, mouseMoveHandler);
+      document.removeEventListener(`mouseup`, mouseUpHandler);
+    };
+
+    document.addEventListener(`mousemove`, mouseMoveHandler);
+    document.addEventListener(`mouseup`, mouseUpHandler);
+  });
+
+  let renderPinsMarkup = (pinsData) => {
     let fragment = document.createDocumentFragment();
 
     for (let i = 0; i < pinsData.length; i++) {
-      fragment.appendChild(window.renderOffers(pinsData[i]));
+      fragment.appendChild(window.pin.renderOffers(pinsData[i]));
     }
 
     mapPins.appendChild(fragment);
@@ -44,8 +100,7 @@
 
     window.offers = addIdToSourceData(data);
 
-    // window.renderPinsMarkup(window.offers);
-    window.activateFiltration(window.offers);
+    window.map.renderPinsMarkup(window.filter.activateFiltration(window.offers));
   };
 
   let loadErrorHandler = (errorMessage) => {
@@ -76,7 +131,7 @@
       adFormFieldsets[i].disabled = false;
     }
 
-    window.setFiltersActive();
+    window.filter.setFiltersActive();
 
     window.load(loadSuccessHandler, loadErrorHandler);
 
@@ -84,78 +139,24 @@
 
     map.addEventListener(`click`, mapPinHandler);
 
-    mapPin.addEventListener(`mousedown`, (evt) => {
-      evt.preventDefault();
-
-      let startCoords = {
-        x: evt.clientX,
-        y: evt.clientY
-      };
-
-      let mouseMoveHandler = (moveEvt) => {
-        moveEvt.preventDefault();
-
-        let shift = {
-          x: startCoords.x - moveEvt.clientX,
-          y: startCoords.y - moveEvt.clientY
-        };
-
-        startCoords = {
-          x: moveEvt.clientX,
-          y: moveEvt.clientY,
-        };
-
-        mapPin.style.top = (mapPin.offsetTop - shift.y) + `px`;
-        mapPin.style.left = (mapPin.offsetLeft - shift.x) + `px`;
-
-        let currentY = mapPin.offsetTop - shift.y;
-        let currentX = mapPin.offsetLeft - shift.x;
-
-        if (currentX < OFFER_LOCATION_X_MIN) {
-          mapPin.style.left = OFFER_LOCATION_X_MIN + `px`;
-        }
-
-        if (currentX > OFFER_LOCATION_X_MAX) {
-          mapPin.style.left = OFFER_LOCATION_X_MAX + `px`;
-        }
-
-        if (currentY < OFFER_LOCATION_Y_MIN) {
-          mapPin.style.top = OFFER_LOCATION_Y_MIN + `px`;
-        }
-
-        if (currentY > OFFER_LOCATION_Y_MAX) {
-          mapPin.style.top = OFFER_LOCATION_Y_MAX + `px`;
-        }
-        adFormAddress.value = `X: ` + (currentX - MAP_PIN_WIDTH / 2) + ` px` + `, Y: ` + (currentY - MAP_PIN_HEIGHT) + ` px`;
-      };
-
-      let mouseUpHandler = (upEvt) => {
-        upEvt.preventDefault();
-
-        document.removeEventListener(`mousemove`, mouseMoveHandler);
-        document.removeEventListener(`mouseup`, mouseUpHandler);
-      };
-
-      document.addEventListener(`mousemove`, mouseMoveHandler);
-      document.addEventListener(`mouseup`, mouseUpHandler);
-    });
+    adFormAddress.value = `X: ` + (mapPin.offsetLeft - MAP_PIN_WIDTH / 2) + ` px` + `, Y: ` + (mapPin.offsetTop - MAP_PIN_HEIGHT) + ` px`;
   };
 
-  window.pinsRemoveHandler = () => {
+  let pinsRemoveHandler = () => {
     let mapPinsItems = document.querySelectorAll(`.map__pin:not(.map__pin--main)`);
     for (let i = 0; i < mapPinsItems.length; i++) {
       mapPinsItems[i].remove();
     }
   };
 
-  window.cardRemoveHandler = () => {
+  let cardRemoveHandler = () => {
     let mapCard = document.querySelector(`.map__card`);
     if (mapCard) {
-      window.cardCloseHandler();
+      window.map.cardCloseHandler();
     }
   };
 
-  window.setDisactiveState = () => {
+  let setDisactiveState = () => {
     map.classList.add(`map--faded`);
     adForm.classList.add(`ad-form--disabled`);
 
@@ -163,15 +164,15 @@
       adFormFieldsets[i].disabled = true;
     }
 
-    window.setFiltersDisactive();
+    window.filter.setFiltersDisactive();
 
     mapPin.addEventListener(`click`, activateHandler);
 
-    window.cardRemoveHandler();
-    window.pinsRemoveHandler();
+    window.map.cardRemoveHandler();
+    window.map.pinsRemoveHandler();
   };
 
-  window.cardCloseHandler = () => {
+  let cardCloseHandler = () => {
     let mapCard = map.querySelector(`.map__card`);
     mapCard.remove();
     let pointerActive = map.querySelector(`.map__pin--active`);
@@ -181,16 +182,16 @@
 
   let cardEcsHandler = (evt) => {
     if (evt.key === `Escape`) {
-      window.cardCloseHandler();
+      window.map.cardCloseHandler();
     }
   };
 
   let cardOpenHandler = (pinAttr, pointer) => {
-    map.insertBefore(window.renderCard(window.offers[pinAttr]), mapPins);
+    map.insertBefore(window.card.renderCard(window.offers[pinAttr]), mapPins);
     pointer.classList.add(`map__pin--active`);
     document.addEventListener(`keydown`, cardEcsHandler);
     let cardClose = map.querySelector(`.popup__close`);
-    cardClose.addEventListener(`click`, window.cardCloseHandler);
+    cardClose.addEventListener(`click`, window.map.cardCloseHandler);
   };
 
   let mapPinHandler = (evt) => {
@@ -202,10 +203,19 @@
       if (!mapCard) {
         cardOpenHandler(pinAttr, pointer);
       } else {
-        window.cardCloseHandler();
+        window.map.cardCloseHandler();
         cardOpenHandler(pinAttr, pointer);
       }
     }
+  };
+
+  window.map = {
+    getDefaultPinPosition,
+    renderPinsMarkup,
+    pinsRemoveHandler,
+    cardRemoveHandler,
+    cardCloseHandler,
+    setDisactiveState,
   };
 
 })();
