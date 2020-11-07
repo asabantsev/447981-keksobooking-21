@@ -23,6 +23,62 @@
     mapPin.style.top = defaultPinY;
   };
 
+  mapPin.addEventListener(`mousedown`, (evt) => {
+    evt.preventDefault();
+
+    let startCoords = {
+      x: evt.clientX,
+      y: evt.clientY
+    };
+
+    let mouseMoveHandler = (moveEvt) => {
+      moveEvt.preventDefault();
+
+      let shift = {
+        x: startCoords.x - moveEvt.clientX,
+        y: startCoords.y - moveEvt.clientY
+      };
+
+      startCoords = {
+        x: moveEvt.clientX,
+        y: moveEvt.clientY,
+      };
+
+      mapPin.style.top = (mapPin.offsetTop - shift.y) + `px`;
+      mapPin.style.left = (mapPin.offsetLeft - shift.x) + `px`;
+
+      let currentY = mapPin.offsetTop - shift.y;
+      let currentX = mapPin.offsetLeft - shift.x;
+
+      if (currentX < OFFER_LOCATION_X_MIN) {
+        mapPin.style.left = OFFER_LOCATION_X_MIN + `px`;
+      }
+
+      if (currentX > OFFER_LOCATION_X_MAX) {
+        mapPin.style.left = OFFER_LOCATION_X_MAX + `px`;
+      }
+
+      if (currentY < OFFER_LOCATION_Y_MIN) {
+        mapPin.style.top = OFFER_LOCATION_Y_MIN + `px`;
+      }
+
+      if (currentY > OFFER_LOCATION_Y_MAX) {
+        mapPin.style.top = OFFER_LOCATION_Y_MAX + `px`;
+      }
+      adFormAddress.value = `X: ` + (currentX - MAP_PIN_WIDTH / 2) + ` px` + `, Y: ` + (currentY - MAP_PIN_HEIGHT) + ` px`;
+    };
+
+    let mouseUpHandler = (upEvt) => {
+      upEvt.preventDefault();
+
+      document.removeEventListener(`mousemove`, mouseMoveHandler);
+      document.removeEventListener(`mouseup`, mouseUpHandler);
+    };
+
+    document.addEventListener(`mousemove`, mouseMoveHandler);
+    document.addEventListener(`mouseup`, mouseUpHandler);
+  });
+
   let renderPinsMarkup = (pinsData) => {
     let fragment = document.createDocumentFragment();
 
@@ -83,61 +139,7 @@
 
     map.addEventListener(`click`, mapPinHandler);
 
-    mapPin.addEventListener(`mousedown`, (evt) => {
-      evt.preventDefault();
-
-      let startCoords = {
-        x: evt.clientX,
-        y: evt.clientY
-      };
-
-      let mouseMoveHandler = (moveEvt) => {
-        moveEvt.preventDefault();
-
-        let shift = {
-          x: startCoords.x - moveEvt.clientX,
-          y: startCoords.y - moveEvt.clientY
-        };
-
-        startCoords = {
-          x: moveEvt.clientX,
-          y: moveEvt.clientY,
-        };
-
-        mapPin.style.top = (mapPin.offsetTop - shift.y) + `px`;
-        mapPin.style.left = (mapPin.offsetLeft - shift.x) + `px`;
-
-        let currentY = mapPin.offsetTop - shift.y;
-        let currentX = mapPin.offsetLeft - shift.x;
-
-        if (currentX < OFFER_LOCATION_X_MIN) {
-          mapPin.style.left = OFFER_LOCATION_X_MIN + `px`;
-        }
-
-        if (currentX > OFFER_LOCATION_X_MAX) {
-          mapPin.style.left = OFFER_LOCATION_X_MAX + `px`;
-        }
-
-        if (currentY < OFFER_LOCATION_Y_MIN) {
-          mapPin.style.top = OFFER_LOCATION_Y_MIN + `px`;
-        }
-
-        if (currentY > OFFER_LOCATION_Y_MAX) {
-          mapPin.style.top = OFFER_LOCATION_Y_MAX + `px`;
-        }
-        adFormAddress.value = `X: ` + (currentX - MAP_PIN_WIDTH / 2) + ` px` + `, Y: ` + (currentY - MAP_PIN_HEIGHT) + ` px`;
-      };
-
-      let mouseUpHandler = (upEvt) => {
-        upEvt.preventDefault();
-
-        document.removeEventListener(`mousemove`, mouseMoveHandler);
-        document.removeEventListener(`mouseup`, mouseUpHandler);
-      };
-
-      document.addEventListener(`mousemove`, mouseMoveHandler);
-      document.addEventListener(`mouseup`, mouseUpHandler);
-    });
+    adFormAddress.value = `X: ` + (mapPin.offsetLeft - MAP_PIN_WIDTH / 2) + ` px` + `, Y: ` + (mapPin.offsetTop - MAP_PIN_HEIGHT) + ` px`;
   };
 
   let pinsRemoveHandler = () => {

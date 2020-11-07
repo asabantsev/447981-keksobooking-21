@@ -19,6 +19,7 @@
   const TITLE_MIN_LENGTH = 30;
   const MAX_PRICE = 1000000;
 
+  let main = document.querySelector(`main`);
   let adForm = document.querySelector(`.ad-form`);
   let adFormRooms = adForm.querySelector(`select[name="rooms"]`);
   let adFormCapacity = adForm.querySelector(`select[name="capacity"]`);
@@ -28,7 +29,9 @@
   let adFormTimein = adForm.querySelector(`#timein`);
   let adFormTimeout = adForm.querySelector(`#timeout`);
   let adFormReset = adForm.querySelector(`.ad-form__reset`);
+  let adFormSubmit = document.querySelector(`.ad-form__submit`);
   let minPrice;
+  let successMessageTemplate = document.querySelector(`#success`).content.querySelector(`.success`);
 
   adFormCapacity.addEventListener(`input`, () => {
     if (+adFormRooms.value === ROOMS[0] && +adFormCapacity.value !== CAPACITY[2]) {
@@ -57,9 +60,14 @@
     adFormTitle.reportValidity();
   });
 
+  minPrice = OFFER_TYPE_PRICE[adFormType.value];
+  adFormPrice.placeholder = `` + minPrice;
+  adFormPrice.min = minPrice;
+
   adFormType.addEventListener(`change`, () => {
     adFormPrice.setAttribute(`max`, MAX_PRICE);
     minPrice = OFFER_TYPE_PRICE[adFormType.value];
+    adFormPrice.value = ``;
     adFormPrice.placeholder = `` + minPrice;
     adFormPrice.min = minPrice;
     adFormType.reportValidity();
@@ -87,26 +95,30 @@
   });
 
   let uploadSuccessHandler = () => {
-    let successMessageTemplate = document.querySelector(`#success`).content.querySelector(`.success`);
-
     let renderSuccessMessage = () => {
       let successMessageElement = successMessageTemplate.cloneNode(true);
 
-      document.addEventListener(`keydown`, (evt) => {
+      let escHandler = (evt) => {
         if (evt.key === `Escape`) {
           successMessageElement.remove();
         }
-      });
+        document.removeEventListener(`keydown`, escHandler);
+        document.removeEventListener(`click`, clickHandler);
+      };
 
-      document.addEventListener(`click`, () => {
+      let clickHandler = () => {
         successMessageElement.remove();
-      });
+        document.removeEventListener(`click`, clickHandler);
+        document.removeEventListener(`keydown`, escHandler);
+      };
+
+      document.addEventListener(`keydown`, escHandler);
+      document.addEventListener(`click`, clickHandler);
 
       return successMessageElement;
     };
 
-    document.querySelector(`main`).appendChild(renderSuccessMessage);
-
+    main.appendChild(renderSuccessMessage());
     adForm.reset();
     window.map.setDisactiveState();
   };
@@ -116,33 +128,65 @@
 
     let renderErrorMessage = () => {
       let errorMessageElement = errorMessageTemplate.cloneNode(true);
-
       let errorMessageButton = errorMessageElement.querySelector(`.error__button`);
 
-      errorMessageButton.addEventListener(`click`, () => {
-        errorMessageElement.remove();
-      });
-
-      document.addEventListener(`keydown`, (evt) => {
+      let escHandler = (evt) => {
         if (evt.key === `Escape`) {
           errorMessageElement.remove();
         }
-      });
+        document.removeEventListener(`keydown`, escHandler);
+        document.removeEventListener(`click`, clickHandler);
+      };
 
-      document.addEventListener(`click`, () => {
+      let clickHandler = () => {
         errorMessageElement.remove();
-      });
+        document.removeEventListener(`click`, clickHandler);
+        document.removeEventListener(`keydown`, escHandler);
+      };
+
+      errorMessageButton.addEventListener(`click`, clickHandler);
+      document.addEventListener(`click`, clickHandler);
+      document.addEventListener(`keydown`, escHandler);
 
       return errorMessageElement;
     };
 
-    document.querySelector(`main`).appendChild(renderErrorMessage);
+    main.appendChild(renderErrorMessage());
+  };
+
+  adFormSubmit.addEventListener(`click`, () => {
+    checkValidity();
+  });
+
+  let checkValidity = () => {
+    if (adFormTitle.value.length === 0) {
+      adFormTitle.setCustomValidity(`Введите заголовок`);
+    }
+
+    let adFormTypeText = OFFER_TYPE_VALUE[adFormType.value];
+
+    if (adFormPrice.value.length === 0) {
+      adFormPrice.setCustomValidity(`Введите цену`);
+    } else if (adFormPrice.value > MAX_PRICE) {
+      adFormPrice.setCustomValidity(`Максимальная цена за ночь ${MAX_PRICE} руб.`);
+    } else if (adFormPrice.value < minPrice) {
+      adFormPrice.setCustomValidity(`Минимальная цена за ночь в типе жилья: ${adFormTypeText}, ${minPrice} руб.`);
+    } else {
+      adFormPrice.setCustomValidity(``);
+    }
+
+    if (adFormRooms.value.indexOf(+adFormCapacity.value) === -1) {
+      adFormCapacity.setCustomValidity(`Выбранное количество гостей не поместятся в данное количество комнат`);
+    } else {
+      adFormCapacity.setCustomValidity(``);
+    }
   };
 
   adForm.addEventListener(`submit`, (evt) => {
     window.upload(new FormData(adForm), uploadSuccessHandler, uploadErrorHandler);
 
     evt.preventDefault();
+    window.map.getDefaultPinPosition();
   });
 
   adFormReset.addEventListener(`click`, () => {
