@@ -50,6 +50,10 @@
       let currentY = mapPin.offsetTop - shift.y;
       let currentX = mapPin.offsetLeft - shift.x;
 
+      if (currentX > map.clientWidth) {
+        mapPin.style.left = map.clientWidth + `px`;
+      }
+
       if (currentX < OFFER_LOCATION_X_MIN) {
         mapPin.style.left = OFFER_LOCATION_X_MIN + `px`;
       }
@@ -65,7 +69,7 @@
       if (currentY > OFFER_LOCATION_Y_MAX) {
         mapPin.style.top = OFFER_LOCATION_Y_MAX + `px`;
       }
-      adFormAddress.value = `X: ` + (currentX - MAP_PIN_WIDTH / 2) + ` px` + `, Y: ` + (currentY - MAP_PIN_HEIGHT) + ` px`;
+      adFormAddress.value = `X: ` + (mapPin.offsetLeft - MAP_PIN_WIDTH / 2) + ` px` + `, Y: ` + (mapPin.offsetTop - MAP_PIN_HEIGHT) + ` px`;
     };
 
     let mouseUpHandler = (upEvt) => {
@@ -82,9 +86,9 @@
   let renderPinsMarkup = (pinsData) => {
     let fragment = document.createDocumentFragment();
 
-    for (let i = 0; i < pinsData.length; i++) {
-      fragment.appendChild(window.pin.renderOffers(pinsData[i]));
-    }
+    pinsData.forEach((item) => {
+      fragment.appendChild(window.pin.renderOffers(item));
+    });
 
     mapPins.appendChild(fragment);
   };
@@ -144,9 +148,9 @@
 
   let pinsRemoveHandler = () => {
     let mapPinsItems = document.querySelectorAll(`.map__pin:not(.map__pin--main)`);
-    for (let i = 0; i < mapPinsItems.length; i++) {
-      mapPinsItems[i].remove();
-    }
+    mapPinsItems.forEach((item) => {
+      item.remove();
+    });
   };
 
   let cardRemoveHandler = () => {
@@ -160,9 +164,9 @@
     map.classList.add(`map--faded`);
     adForm.classList.add(`ad-form--disabled`);
 
-    for (let i = 0; i < adFormFieldsets.length; i++) {
-      adFormFieldsets[i].disabled = true;
-    }
+    adFormFieldsets.forEach((item) => {
+      item.disabled = true;
+    });
 
     window.filter.setFiltersDisactive();
 

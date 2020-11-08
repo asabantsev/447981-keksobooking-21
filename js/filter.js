@@ -94,13 +94,13 @@
   };
 
   let setFiltersDisactive = () => {
-    for (let i = 0; i < mapFiltersSelects.length; i++) {
-      mapFiltersSelects[i].disabled = true;
-    }
+    mapFiltersSelects.forEach((item) => {
+      item.disabled = true;
+    });
 
-    for (let i = 0; i < mapFiltersInputs.length; i++) {
-      mapFiltersInputs[i].disabled = true;
-    }
+    mapFiltersInputs.forEach((item) => {
+      item.disabled = true;
+    });
 
     resetFilter();
     mapFilters.removeEventListener(`change`, filterChangeHandler);
