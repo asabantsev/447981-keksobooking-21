@@ -32,30 +32,32 @@
   let adFormSubmit = document.querySelector(`.ad-form__submit`);
   let minPrice;
   let successMessageTemplate = document.querySelector(`#success`).content.querySelector(`.success`);
+  let errorMessageTemplate = document.querySelector(`#error`).content.querySelector(`.error`);
 
   adFormCapacity.addEventListener(`input`, () => {
+    adFormCapacity.setCustomValidity(``);
     if (+adFormRooms.value === ROOMS[0] && +adFormCapacity.value !== CAPACITY[2]) {
       adFormCapacity.setCustomValidity(`Необходимо выбрать 1-го гостя`);
-    } else if (+adFormRooms.value === ROOMS[1] && +adFormCapacity.value !== CAPACITY[2] && +adFormCapacity.value !== CAPACITY[1]) {
-      adFormCapacity.setCustomValidity(`Необходимо выбрать 1-го или 2-х гостей`);
-    } else if (+adFormRooms.value === ROOMS[2] && +adFormCapacity.value !== CAPACITY[0] && +adFormCapacity.value !== CAPACITY[1] && +adFormCapacity.value !== CAPACITY[2]) {
-      adFormCapacity.setCustomValidity(`Необходимо выбрать 1-го, 2-х или 3-х гостей`);
-    } else if (+adFormRooms.value === ROOMS[3] && +adFormCapacity.value !== CAPACITY[3]) {
-      adFormCapacity.setCustomValidity(`Необходимо выбрать "не для гостей"`);
-    } else {
-      adFormCapacity.setCustomValidity(``);
     }
-
+    if (+adFormRooms.value === ROOMS[1] && +adFormCapacity.value !== CAPACITY[2] && +adFormCapacity.value !== CAPACITY[1]) {
+      adFormCapacity.setCustomValidity(`Необходимо выбрать 1-го или 2-х гостей`);
+    }
+    if (+adFormRooms.value === ROOMS[2] && +adFormCapacity.value !== CAPACITY[0] && +adFormCapacity.value !== CAPACITY[1] && +adFormCapacity.value !== CAPACITY[2]) {
+      adFormCapacity.setCustomValidity(`Необходимо выбрать 1-го, 2-х или 3-х гостей`);
+    }
+    if (+adFormRooms.value === ROOMS[3] && +adFormCapacity.value !== CAPACITY[3]) {
+      adFormCapacity.setCustomValidity(`Необходимо выбрать "не для гостей"`);
+    }
     adFormCapacity.reportValidity();
   });
 
   adFormTitle.addEventListener(`input`, () => {
+    adFormTitle.setCustomValidity(``);
     if (adFormTitle.value.length < TITLE_MIN_LENGTH) {
       adFormTitle.setCustomValidity(`Заголовок объявления должен быть больше ${TITLE_MIN_LENGTH} символов. Сейчас ${adFormTitle.value.length}.`);
-    } else if (adFormTitle.value.length > TITLE_MAX_LENGTH) {
+    }
+    if (adFormTitle.value.length > TITLE_MAX_LENGTH) {
       adFormTitle.setCustomValidity(`Заголовок объявления должен быть не более ${TITLE_MAX_LENGTH} символов. Сейчас ${adFormTitle.value.length}.`);
-    } else {
-      adFormTitle.setCustomValidity(``);
     }
     adFormTitle.reportValidity();
   });
@@ -76,12 +78,12 @@
   adFormPrice.addEventListener(`input`, () => {
     let adFormTypeText = OFFER_TYPE_VALUE[adFormType.value];
 
+    adFormPrice.setCustomValidity(``);
     if (adFormPrice.value > MAX_PRICE) {
       adFormPrice.setCustomValidity(`Максимальная цена за ночь ${MAX_PRICE} руб.`);
-    } else if (adFormPrice.value < minPrice) {
+    }
+    if (adFormPrice.value < minPrice) {
       adFormPrice.setCustomValidity(`Минимальная цена за ночь в типе жилья: ${adFormTypeText}, ${minPrice} руб.`);
-    } else {
-      adFormPrice.setCustomValidity(``);
     }
     adFormPrice.reportValidity();
   });
@@ -124,8 +126,6 @@
   };
 
   let uploadErrorHandler = () => {
-    let errorMessageTemplate = document.querySelector(`#error`).content.querySelector(`.error`);
-
     let renderErrorMessage = () => {
       let errorMessageElement = errorMessageTemplate.cloneNode(true);
       let errorMessageButton = errorMessageElement.querySelector(`.error__button`);
@@ -165,20 +165,20 @@
 
     let adFormTypeText = OFFER_TYPE_VALUE[adFormType.value];
 
+    adFormPrice.setCustomValidity(``);
     if (adFormPrice.value.length === 0) {
       adFormPrice.setCustomValidity(`Введите цену`);
-    } else if (adFormPrice.value > MAX_PRICE) {
+    }
+    if (adFormPrice.value > MAX_PRICE) {
       adFormPrice.setCustomValidity(`Максимальная цена за ночь ${MAX_PRICE} руб.`);
-    } else if (adFormPrice.value < minPrice) {
+    }
+    if (adFormPrice.value < minPrice) {
       adFormPrice.setCustomValidity(`Минимальная цена за ночь в типе жилья: ${adFormTypeText}, ${minPrice} руб.`);
-    } else {
-      adFormPrice.setCustomValidity(``);
     }
 
+    adFormCapacity.setCustomValidity(``);
     if (adFormRooms.value.indexOf(+adFormCapacity.value) === -1) {
       adFormCapacity.setCustomValidity(`Выбранное количество гостей не поместятся в данное количество комнат`);
-    } else {
-      adFormCapacity.setCustomValidity(``);
     }
   };
 
