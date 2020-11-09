@@ -4,10 +4,11 @@
   const MAP_PIN_WIDTH = 65;
   const MAP_PIN_HEIGHT = 65;
   const MAP_PIN_POINTER = 22;
-  const OFFER_LOCATION_X_MIN = 130;
-  const OFFER_LOCATION_X_MAX = 940;
+  const OFFER_LOCATION_X_MIN = 0;
   const OFFER_LOCATION_Y_MIN = 130;
   const OFFER_LOCATION_Y_MAX = 630;
+  const MAIN_PIN_LEFT = 570;
+  const MAIN_PIN_TOP = 375;
   const KEY_ESC = `Escape`;
 
   const map = document.querySelector(`.map`);
@@ -17,12 +18,10 @@
   const adFormFieldsets = adForm.querySelectorAll(`fieldset`);
   const adFormAddress = adForm.querySelector(`input[name="address"]`);
   adFormAddress.setAttribute(`readonly`, true);
-  const defaultPinX = Math.round(mapPin.offsetLeft + MAP_PIN_WIDTH / 2);
-  const defaultPinY = Math.round(mapPin.offsetTop + MAP_PIN_HEIGHT / 2);
 
-  const getDefaultPinPosition = () => {
-    mapPin.style.left = defaultPinX;
-    mapPin.style.top = defaultPinY;
+  const setDefaultPinPosition = () => {
+    mapPin.style.left = MAIN_PIN_LEFT + `px`;
+    mapPin.style.top = MAIN_PIN_TOP + `px`;
   };
 
   mapPin.addEventListener(`mousedown`, (evt) => {
@@ -56,12 +55,12 @@
         mapPin.style.left = map.clientWidth + `px`;
       }
 
-      if (currentX < OFFER_LOCATION_X_MIN + MAP_PIN_WIDTH / 2) {
-        mapPin.style.left = Math.round(OFFER_LOCATION_X_MIN + MAP_PIN_WIDTH / 2) + `px`;
+      if (currentX > (map.clientWidth - MAP_PIN_WIDTH / 2)) {
+        mapPin.style.left = (map.clientWidth - MAP_PIN_WIDTH / 2) + `px`;
       }
 
-      if (currentX > OFFER_LOCATION_X_MAX + MAP_PIN_WIDTH / 2) {
-        mapPin.style.left = Math.round(OFFER_LOCATION_X_MAX + MAP_PIN_WIDTH / 2) + `px`;
+      if (currentX < OFFER_LOCATION_X_MIN - MAP_PIN_WIDTH / 2) {
+        mapPin.style.left = OFFER_LOCATION_X_MIN - (MAP_PIN_WIDTH / 2) + `px`;
       }
 
       if (currentY < OFFER_LOCATION_Y_MIN - (MAP_PIN_HEIGHT + MAP_PIN_POINTER)) {
@@ -72,7 +71,7 @@
         mapPin.style.top = Math.round(OFFER_LOCATION_Y_MAX - (MAP_PIN_HEIGHT + MAP_PIN_POINTER)) + `px`;
       }
 
-      adFormAddress.value = Math.round((mapPin.offsetLeft - MAP_PIN_WIDTH / 2)) + `, ` + Math.round((mapPin.offsetTop + MAP_PIN_HEIGHT + MAP_PIN_POINTER));
+      adFormAddress.value = (mapPin.offsetLeft + Math.round(MAP_PIN_WIDTH / 2)) + `, ` + (mapPin.offsetTop + MAP_PIN_HEIGHT + MAP_PIN_POINTER);
     };
 
     const mouseUpHandler = (upEvt) => {
@@ -134,9 +133,9 @@
     map.classList.remove(`map--faded`);
     adForm.classList.remove(`ad-form--disabled`);
 
-    for (let i = 0; i < adFormFieldsets.length; i++) {
-      adFormFieldsets[i].disabled = false;
-    }
+    adFormFieldsets.forEach((it)=>{
+      it.disabled = false;
+    });
 
     window.filter.setFiltersActive();
 
@@ -176,7 +175,7 @@
     window.map.cardRemoveHandler();
     window.map.pinsRemoveHandler();
 
-    adFormAddress.value = defaultPinX + `, ` + defaultPinY;
+    adFormAddress.value = MAIN_PIN_LEFT + `, ` + MAIN_PIN_TOP;
   };
 
   const cardCloseHandler = () => {
@@ -217,7 +216,7 @@
   };
 
   window.map = {
-    getDefaultPinPosition,
+    setDefaultPinPosition,
     renderPinsMarkup,
     pinsRemoveHandler,
     cardRemoveHandler,

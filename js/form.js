@@ -187,12 +187,12 @@
     window.backend.upload(new FormData(adForm), uploadSuccessHandler, uploadErrorHandler);
 
     evt.preventDefault();
-    window.map.getDefaultPinPosition();
+    window.map.setDefaultPinPosition();
   });
 
   adFormReset.addEventListener(`click`, () => {
     adForm.reset();
     window.map.setDisactiveState();
-    window.map.getDefaultPinPosition();
+    window.map.setDefaultPinPosition();
   });
 })();
