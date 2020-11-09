@@ -17,8 +17,8 @@
   const adFormFieldsets = adForm.querySelectorAll(`fieldset`);
   const adFormAddress = adForm.querySelector(`input[name="address"]`);
   adFormAddress.setAttribute(`readonly`, true);
-  const defaultPinX = mapPin.offsetLeft + MAP_PIN_WIDTH / 2;
-  const defaultPinY = mapPin.offsetTop + MAP_PIN_HEIGHT / 2;
+  const defaultPinX = Math.round(mapPin.offsetLeft + MAP_PIN_WIDTH / 2);
+  const defaultPinY = Math.round(mapPin.offsetTop + MAP_PIN_HEIGHT / 2);
 
   const getDefaultPinPosition = () => {
     mapPin.style.left = defaultPinX;
@@ -57,22 +57,22 @@
       }
 
       if (currentX < OFFER_LOCATION_X_MIN + MAP_PIN_WIDTH / 2) {
-        mapPin.style.left = OFFER_LOCATION_X_MIN + MAP_PIN_WIDTH / 2 + `px`;
+        mapPin.style.left = Math.round(OFFER_LOCATION_X_MIN + MAP_PIN_WIDTH / 2) + `px`;
       }
 
       if (currentX > OFFER_LOCATION_X_MAX + MAP_PIN_WIDTH / 2) {
-        mapPin.style.left = OFFER_LOCATION_X_MAX + MAP_PIN_WIDTH / 2 + `px`;
+        mapPin.style.left = Math.round(OFFER_LOCATION_X_MAX + MAP_PIN_WIDTH / 2) + `px`;
       }
 
       if (currentY < OFFER_LOCATION_Y_MIN - (MAP_PIN_HEIGHT + MAP_PIN_POINTER)) {
-        mapPin.style.top = OFFER_LOCATION_Y_MIN - (MAP_PIN_HEIGHT + MAP_PIN_POINTER) + `px`;
+        mapPin.style.top = Math.round(OFFER_LOCATION_Y_MIN - (MAP_PIN_HEIGHT + MAP_PIN_POINTER)) + `px`;
       }
 
       if (currentY > OFFER_LOCATION_Y_MAX - (MAP_PIN_HEIGHT + MAP_PIN_POINTER)) {
-        mapPin.style.top = OFFER_LOCATION_Y_MAX - (MAP_PIN_HEIGHT + MAP_PIN_POINTER) + `px`;
+        mapPin.style.top = Math.round(OFFER_LOCATION_Y_MAX - (MAP_PIN_HEIGHT + MAP_PIN_POINTER)) + `px`;
       }
 
-      adFormAddress.value = (mapPin.offsetLeft - MAP_PIN_WIDTH / 2) + `, ` + (mapPin.offsetTop + MAP_PIN_HEIGHT + MAP_PIN_POINTER);
+      adFormAddress.value = Math.round((mapPin.offsetLeft - MAP_PIN_WIDTH / 2)) + `, ` + Math.round((mapPin.offsetTop + MAP_PIN_HEIGHT + MAP_PIN_POINTER));
     };
 
     const mouseUpHandler = (upEvt) => {
