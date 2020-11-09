@@ -1,6 +1,6 @@
 'use strict';
 
-(function () {
+(() => {
   const PINS_LIMIT = 5;
   const PRICE_RANGE = {
     LOW: {
@@ -16,94 +16,123 @@
       MAX: Infinity
     }
   };
+  const FILTER_TYPES = {
+    ANY: `any`,
+    TYPE: `type`,
+    ROOMS: `rooms`,
+    GUESTS: `guests`
+  };
 
-  let mapFilters = document.querySelector(`.map__filters`);
-  let mapFiltersSelects = mapFilters.querySelectorAll(`select`);
-  let mapFiltersInputs = mapFilters.querySelectorAll(`input`);
-  let typeSelect = mapFilters.querySelector(`#housing-type`);
-  let priceSelect = mapFilters.querySelector(`#housing-price`);
-  let roomsSelect = mapFilters.querySelector(`#housing-rooms`);
-  let guestsSelect = mapFilters.querySelector(`#housing-guests`);
-  let featuresFieldset = mapFilters.querySelector(`#housing-features`);
+  const mapFilters = document.querySelector(`.map__filters`);
+  const mapFiltersSelects = mapFilters.querySelectorAll(`select`);
+  const mapFiltersInputs = mapFilters.querySelectorAll(`input`);
+  const typeSelect = mapFilters.querySelector(`#housing-type`);
+  const priceSelect = mapFilters.querySelector(`#housing-price`);
+  const roomsSelect = mapFilters.querySelector(`#housing-rooms`);
+  const guestsSelect = mapFilters.querySelector(`#housing-guests`);
+  const featuresFieldset = mapFilters.querySelector(`#housing-features`);
   let data = [];
-  let filteredData = [];
 
-  let filtrationItem = (it, item, key) => {
-    return it.value === `any` ? true : it.value === item[key].toString();
+  const filtrationItem = (it, item, key) => {
+    return it.value === FILTER_TYPES.ANY ? true : it.value === item[key].toString();
   };
 
-  let filtrationByType = (obj) => {
-    return filtrationItem(typeSelect, obj.offer, `type`);
+  const filtrationByType = (obj) => {
+    return filtrationItem(typeSelect, obj.offer, FILTER_TYPES.TYPE);
   };
 
-  let filtrationByPrice = (obj) => {
-    let filteringPrice = PRICE_RANGE[priceSelect.value.toUpperCase()];
+  const filtrationByPrice = (obj) => {
+    const filteringPrice = PRICE_RANGE[priceSelect.value.toUpperCase()];
 
     return filteringPrice ? obj.offer.price >= filteringPrice.MIN && obj.offer.price <= filteringPrice.MAX : true;
   };
 
-  let filtrationByRooms = (obj) => {
-    return filtrationItem(roomsSelect, obj.offer, `rooms`);
+  const filtrationByRooms = (obj) => {
+    return filtrationItem(roomsSelect, obj.offer, FILTER_TYPES.ROOMS);
   };
 
-  let filtrationByGuests = (obj) => {
-    return filtrationItem(guestsSelect, obj.offer, `guests`);
+  const filtrationByGuests = (obj) => {
+    return filtrationItem(guestsSelect, obj.offer, FILTER_TYPES.GUESTS);
   };
 
-  let filtrationByFeatures = (obj) => {
-    let checkedFeaturesItems = featuresFieldset.querySelectorAll(`input:checked`);
+  const filtrationByFeatures = (obj) => {
+    const checkedFeaturesItems = featuresFieldset.querySelectorAll(`input:checked`);
 
     return Array.from(checkedFeaturesItems).every((element) => {
       return obj.offer.features.includes(element.value);
     });
   };
 
-  let resetFilter = () => {
+  const resetFilter = () => {
     mapFiltersSelects.forEach((it) => {
-      it.value = `any`;
+      it.value = FILTER_TYPES.ANY;
     });
     mapFiltersInputs.forEach((feature) => {
       feature.checked = false;
     });
   };
 
-  let filterChangeHandler = window.util.debounce(() => {
-    filteredData = data.slice(0);
-    filteredData = filteredData.filter(filtrationByType).filter(filtrationByPrice).filter(filtrationByRooms).filter(filtrationByGuests).filter(filtrationByFeatures);
+  const changeFilter = window.util.debounce(() => {
+    let filteredData = [];
+    let isSuitableOffer = true;
+    for (let i = 0; i < data.length; i++) {
+      isSuitableOffer = filtrationByType(data[i]);
+      if (isSuitableOffer === false) {
+        continue;
+      }
+      isSuitableOffer = filtrationByPrice(data[i]);
+      if (isSuitableOffer === false) {
+        continue;
+      }
+      isSuitableOffer = filtrationByRooms(data[i]);
+      if (isSuitableOffer === false) {
+        continue;
+      }
+      isSuitableOffer = filtrationByGuests(data[i]);
+      if (isSuitableOffer === false) {
+        continue;
+      }
+      isSuitableOffer = filtrationByFeatures(data[i]);
+      if (isSuitableOffer === false) {
+        continue;
+      }
+      filteredData.push(data[i]);
+      if (filteredData.length >= PINS_LIMIT) {
+        break;
+      }
+    }
     window.map.cardRemoveHandler();
     window.map.pinsRemoveHandler();
-    window.map.renderPinsMarkup(filteredData.slice(0, PINS_LIMIT));
+    window.map.renderPinsMarkup(filteredData);
   });
 
-  let setFiltersActive = () => {
+  const filtersChangeStatusHandler = (status) => {
     mapFiltersSelects.forEach((item) => {
-      item.disabled = false;
+      item.disabled = status;
     });
 
     mapFiltersInputs.forEach((item) => {
-      item.disabled = false;
+      item.disabled = status;
     });
-
-    mapFilters.addEventListener(`change`, filterChangeHandler);
   };
 
-  let activateFiltration = (offerdata) => {
+  const setFiltersActive = () => {
+    filtersChangeStatusHandler(false);
+
+    mapFilters.addEventListener(`change`, changeFilter);
+  };
+
+  const activateFiltration = (offerdata) => {
     data = offerdata.slice(0);
     window.filter.setFiltersActive();
     return offerdata.slice(0, PINS_LIMIT);
   };
 
-  let setFiltersDisactive = () => {
-    mapFiltersSelects.forEach((item) => {
-      item.disabled = true;
-    });
-
-    mapFiltersInputs.forEach((item) => {
-      item.disabled = true;
-    });
+  const setFiltersDisactive = () => {
+    filtersChangeStatusHandler(true);
 
     resetFilter();
-    mapFilters.removeEventListener(`change`, filterChangeHandler);
+    mapFilters.removeEventListener(`change`, changeFilter);
   };
 
   window.filter = {

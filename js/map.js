@@ -1,24 +1,26 @@
 'use strict';
 
-(function () {
+(() => {
   const MAP_PIN_WIDTH = 65;
   const MAP_PIN_HEIGHT = 65;
+  const MAP_PIN_POINTER = 22;
   const OFFER_LOCATION_X_MIN = 130;
-  const OFFER_LOCATION_X_MAX = 1070;
+  const OFFER_LOCATION_X_MAX = 940;
   const OFFER_LOCATION_Y_MIN = 130;
   const OFFER_LOCATION_Y_MAX = 630;
+  const KEY_ESC = `Escape`;
 
-  let map = document.querySelector(`.map`);
-  let mapPins = map.querySelector(`.map__pins`);
-  let mapPin = map.querySelector(`.map__pin--main`);
-  let adForm = document.querySelector(`.ad-form`);
-  let adFormFieldsets = adForm.querySelectorAll(`fieldset`);
-  let adFormAddress = adForm.querySelector(`input[name="address"]`);
-  adFormAddress.readonly = true;
-  let defaultPinX = mapPin.style.left;
-  let defaultPinY = mapPin.style.top;
+  const map = document.querySelector(`.map`);
+  const mapPins = map.querySelector(`.map__pins`);
+  const mapPin = map.querySelector(`.map__pin--main`);
+  const adForm = document.querySelector(`.ad-form`);
+  const adFormFieldsets = adForm.querySelectorAll(`fieldset`);
+  const adFormAddress = adForm.querySelector(`input[name="address"]`);
+  adFormAddress.setAttribute(`readonly`, true);
+  const defaultPinX = mapPin.offsetLeft + MAP_PIN_WIDTH / 2;
+  const defaultPinY = mapPin.offsetTop + MAP_PIN_HEIGHT / 2;
 
-  let getDefaultPinPosition = () => {
+  const getDefaultPinPosition = () => {
     mapPin.style.left = defaultPinX;
     mapPin.style.top = defaultPinY;
   };
@@ -31,10 +33,10 @@
       y: evt.clientY
     };
 
-    let mouseMoveHandler = (moveEvt) => {
+    const mouseMoveHandler = (moveEvt) => {
       moveEvt.preventDefault();
 
-      let shift = {
+      const shift = {
         x: startCoords.x - moveEvt.clientX,
         y: startCoords.y - moveEvt.clientY
       };
@@ -47,32 +49,33 @@
       mapPin.style.top = (mapPin.offsetTop - shift.y) + `px`;
       mapPin.style.left = (mapPin.offsetLeft - shift.x) + `px`;
 
-      let currentY = mapPin.offsetTop - shift.y;
-      let currentX = mapPin.offsetLeft - shift.x;
+      const currentY = mapPin.offsetTop - shift.y;
+      const currentX = mapPin.offsetLeft - shift.x;
 
       if (currentX > map.clientWidth) {
         mapPin.style.left = map.clientWidth + `px`;
       }
 
-      if (currentX < OFFER_LOCATION_X_MIN) {
-        mapPin.style.left = OFFER_LOCATION_X_MIN + `px`;
+      if (currentX < OFFER_LOCATION_X_MIN + MAP_PIN_WIDTH / 2) {
+        mapPin.style.left = OFFER_LOCATION_X_MIN + MAP_PIN_WIDTH / 2 + `px`;
       }
 
-      if (currentX > OFFER_LOCATION_X_MAX) {
-        mapPin.style.left = OFFER_LOCATION_X_MAX + `px`;
+      if (currentX > OFFER_LOCATION_X_MAX + MAP_PIN_WIDTH / 2) {
+        mapPin.style.left = OFFER_LOCATION_X_MAX + MAP_PIN_WIDTH / 2 + `px`;
       }
 
-      if (currentY < OFFER_LOCATION_Y_MIN) {
-        mapPin.style.top = OFFER_LOCATION_Y_MIN + `px`;
+      if (currentY < OFFER_LOCATION_Y_MIN - (MAP_PIN_HEIGHT + MAP_PIN_POINTER)) {
+        mapPin.style.top = OFFER_LOCATION_Y_MIN - (MAP_PIN_HEIGHT + MAP_PIN_POINTER) + `px`;
       }
 
-      if (currentY > OFFER_LOCATION_Y_MAX) {
-        mapPin.style.top = OFFER_LOCATION_Y_MAX + `px`;
+      if (currentY > OFFER_LOCATION_Y_MAX - (MAP_PIN_HEIGHT + MAP_PIN_POINTER)) {
+        mapPin.style.top = OFFER_LOCATION_Y_MAX - (MAP_PIN_HEIGHT + MAP_PIN_POINTER) + `px`;
       }
-      adFormAddress.value = `X: ` + (mapPin.offsetLeft - MAP_PIN_WIDTH / 2) + ` px` + `, Y: ` + (mapPin.offsetTop - MAP_PIN_HEIGHT) + ` px`;
+
+      adFormAddress.value = (mapPin.offsetLeft - MAP_PIN_WIDTH / 2) + `, ` + (mapPin.offsetTop + MAP_PIN_HEIGHT + MAP_PIN_POINTER);
     };
 
-    let mouseUpHandler = (upEvt) => {
+    const mouseUpHandler = (upEvt) => {
       upEvt.preventDefault();
 
       document.removeEventListener(`mousemove`, mouseMoveHandler);
@@ -83,8 +86,8 @@
     document.addEventListener(`mouseup`, mouseUpHandler);
   });
 
-  let renderPinsMarkup = (pinsData) => {
-    let fragment = document.createDocumentFragment();
+  const renderPinsMarkup = (pinsData) => {
+    const fragment = document.createDocumentFragment();
 
     pinsData.forEach((item) => {
       fragment.appendChild(window.pin.renderOffers(item));
@@ -93,7 +96,7 @@
     mapPins.appendChild(fragment);
   };
 
-  let loadSuccessHandler = (data) => {
+  const loadSuccessHandler = (data) => {
     const addIdToSourceData = (array) => {
       return array.map((item, index) => {
         item.offer.id = index;
@@ -107,8 +110,8 @@
     window.map.renderPinsMarkup(window.filter.activateFiltration(window.offers));
   };
 
-  let loadErrorHandler = (errorMessage) => {
-    let node = document.createElement(`div`);
+  const loadErrorHandler = (errorMessage) => {
+    const node = document.createElement(`div`);
 
     node.style.zIndex = 100;
     node.style.margin = `0 auto`;
@@ -123,11 +126,11 @@
     document.body.insertAdjacentElement(`afterbegin`, node);
   };
 
-  let activateHandler = () => {
+  const mainPinClickHandler = () => {
     setActiveState();
   };
 
-  let setActiveState = () => {
+  const setActiveState = () => {
     map.classList.remove(`map--faded`);
     adForm.classList.remove(`ad-form--disabled`);
 
@@ -137,30 +140,28 @@
 
     window.filter.setFiltersActive();
 
-    window.load(loadSuccessHandler, loadErrorHandler);
+    window.backend.load(loadSuccessHandler, loadErrorHandler);
 
-    mapPin.removeEventListener(`click`, activateHandler);
+    mapPin.removeEventListener(`click`, mainPinClickHandler);
 
-    map.addEventListener(`click`, mapPinHandler);
-
-    adFormAddress.value = `X: ` + (mapPin.offsetLeft - MAP_PIN_WIDTH / 2) + ` px` + `, Y: ` + (mapPin.offsetTop - MAP_PIN_HEIGHT) + ` px`;
+    map.addEventListener(`click`, pinClickHandler);
   };
 
-  let pinsRemoveHandler = () => {
-    let mapPinsItems = document.querySelectorAll(`.map__pin:not(.map__pin--main)`);
+  const pinsRemoveHandler = () => {
+    const mapPinsItems = document.querySelectorAll(`.map__pin:not(.map__pin--main)`);
     mapPinsItems.forEach((item) => {
       item.remove();
     });
   };
 
-  let cardRemoveHandler = () => {
-    let mapCard = document.querySelector(`.map__card`);
+  const cardRemoveHandler = () => {
+    const mapCard = document.querySelector(`.map__card`);
     if (mapCard) {
       window.map.cardCloseHandler();
     }
   };
 
-  let setDisactiveState = () => {
+  const setDisactiveState = () => {
     map.classList.add(`map--faded`);
     adForm.classList.add(`ad-form--disabled`);
 
@@ -170,40 +171,42 @@
 
     window.filter.setFiltersDisactive();
 
-    mapPin.addEventListener(`click`, activateHandler);
+    mapPin.addEventListener(`click`, mainPinClickHandler);
 
     window.map.cardRemoveHandler();
     window.map.pinsRemoveHandler();
+
+    adFormAddress.value = defaultPinX + `, ` + defaultPinY;
   };
 
-  let cardCloseHandler = () => {
-    let mapCard = map.querySelector(`.map__card`);
+  const cardCloseHandler = () => {
+    const mapCard = map.querySelector(`.map__card`);
     mapCard.remove();
-    let pointerActive = map.querySelector(`.map__pin--active`);
+    const pointerActive = map.querySelector(`.map__pin--active`);
     pointerActive.classList.remove(`map__pin--active`);
-    document.removeEventListener(`keydown`, cardEcsHandler);
+    document.removeEventListener(`keydown`, documentEcsHandler);
   };
 
-  let cardEcsHandler = (evt) => {
-    if (evt.key === `Escape`) {
+  const documentEcsHandler = (evt) => {
+    if (evt.key === KEY_ESC) {
       window.map.cardCloseHandler();
     }
   };
 
-  let cardOpenHandler = (pinAttr, pointer) => {
-    map.insertBefore(window.card.renderCard(window.offers[pinAttr]), mapPins);
+  const cardOpenHandler = (pinAttr, pointer) => {
+    map.insertBefore(window.card.renderPopup(window.offers[pinAttr]), mapPins);
     pointer.classList.add(`map__pin--active`);
-    document.addEventListener(`keydown`, cardEcsHandler);
-    let cardClose = map.querySelector(`.popup__close`);
+    document.addEventListener(`keydown`, documentEcsHandler);
+    const cardClose = map.querySelector(`.popup__close`);
     cardClose.addEventListener(`click`, window.map.cardCloseHandler);
   };
 
-  let mapPinHandler = (evt) => {
-    let pointer = evt.target.closest(`.map__pin`);
-    let mapCard = map.querySelector(`.map__card`);
+  const pinClickHandler = (evt) => {
+    const pointer = evt.target.closest(`.map__pin`);
+    const mapCard = map.querySelector(`.map__card`);
 
     if (pointer && !pointer.classList.contains(`map__pin--main`)) {
-      let pinAttr = pointer.attributes[3].value;
+      const pinAttr = pointer.attributes[3].value;
       if (!mapCard) {
         cardOpenHandler(pinAttr, pointer);
       } else {
