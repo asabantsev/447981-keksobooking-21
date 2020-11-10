@@ -51,10 +51,6 @@
       const currentY = mapPin.offsetTop - shift.y;
       const currentX = mapPin.offsetLeft - shift.x;
 
-      if (currentX > map.clientWidth) {
-        mapPin.style.left = map.clientWidth + `px`;
-      }
-
       if (currentX > (map.clientWidth - MAP_PIN_WIDTH / 2)) {
         mapPin.style.left = (map.clientWidth - MAP_PIN_WIDTH / 2) + `px`;
       }
@@ -144,6 +140,8 @@
     mapPin.removeEventListener(`click`, mainPinClickHandler);
 
     map.addEventListener(`click`, pinClickHandler);
+
+    adFormAddress.value = (MAIN_PIN_LEFT + Math.round(MAP_PIN_WIDTH / 2)) + `, ` + (MAIN_PIN_TOP + MAP_PIN_HEIGHT + MAP_PIN_POINTER);
   };
 
   const pinsRemoveHandler = () => {
@@ -156,7 +154,7 @@
   const cardRemoveHandler = () => {
     const mapCard = document.querySelector(`.map__card`);
     if (mapCard) {
-      window.map.cardCloseHandler();
+      cardCloseHandler();
     }
   };
 
@@ -175,20 +173,22 @@
     window.map.cardRemoveHandler();
     window.map.pinsRemoveHandler();
 
-    adFormAddress.value = MAIN_PIN_LEFT + `, ` + MAIN_PIN_TOP;
+    adFormAddress.value = (MAIN_PIN_LEFT + Math.round(MAP_PIN_WIDTH / 2)) + `, ` + (MAIN_PIN_TOP + Math.round(MAP_PIN_HEIGHT / 2));
   };
 
   const cardCloseHandler = () => {
     const mapCard = map.querySelector(`.map__card`);
     mapCard.remove();
     const pointerActive = map.querySelector(`.map__pin--active`);
-    pointerActive.classList.remove(`map__pin--active`);
+    if (pointerActive) {
+      pointerActive.classList.remove(`map__pin--active`);
+    }
     document.removeEventListener(`keydown`, documentEcsHandler);
   };
 
   const documentEcsHandler = (evt) => {
     if (evt.key === KEY_ESC) {
-      window.map.cardCloseHandler();
+      cardCloseHandler();
     }
   };
 
@@ -197,7 +197,7 @@
     pointer.classList.add(`map__pin--active`);
     document.addEventListener(`keydown`, documentEcsHandler);
     const cardClose = map.querySelector(`.popup__close`);
-    cardClose.addEventListener(`click`, window.map.cardCloseHandler);
+    cardClose.addEventListener(`click`, cardCloseHandler);
   };
 
   const pinClickHandler = (evt) => {
@@ -209,7 +209,7 @@
       if (!mapCard) {
         cardOpenHandler(pinAttr, pointer);
       } else {
-        window.map.cardCloseHandler();
+        cardCloseHandler();
         cardOpenHandler(pinAttr, pointer);
       }
     }
@@ -220,7 +220,6 @@
     renderPinsMarkup,
     pinsRemoveHandler,
     cardRemoveHandler,
-    cardCloseHandler,
     setDisactiveState,
   };
 

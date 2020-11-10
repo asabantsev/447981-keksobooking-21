@@ -178,7 +178,10 @@
     }
 
     adFormCapacity.setCustomValidity(``);
-    if (adFormRooms.value.indexOf(+adFormCapacity.value) === -1) {
+    if (+adFormRooms.value === 100 && +adFormCapacity.value !== 0) {
+      adFormCapacity.setCustomValidity(`Выбранно неверное количество гостей `);
+    }
+    if (+adFormRooms.value < +adFormCapacity.value) {
       adFormCapacity.setCustomValidity(`Выбранное количество гостей не поместятся в данное количество комнат`);
     }
   };
