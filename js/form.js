@@ -1,6 +1,6 @@
 'use strict';
 
-(function () {
+(() => {
   const OFFER_TYPE_VALUE = {
     'palace': `дворец`,
     'flat': `квартира`,
@@ -18,21 +18,22 @@
   const TITLE_MAX_LENGTH = 100;
   const TITLE_MIN_LENGTH = 30;
   const MAX_PRICE = 1000000;
+  const KEY_ESC = `Escape`;
 
-  let main = document.querySelector(`main`);
-  let adForm = document.querySelector(`.ad-form`);
-  let adFormRooms = adForm.querySelector(`select[name="rooms"]`);
-  let adFormCapacity = adForm.querySelector(`select[name="capacity"]`);
-  let adFormTitle = adForm.querySelector(`#title`);
-  let adFormPrice = adForm.querySelector(`#price`);
-  let adFormType = adForm.querySelector(`#type`);
-  let adFormTimein = adForm.querySelector(`#timein`);
-  let adFormTimeout = adForm.querySelector(`#timeout`);
-  let adFormReset = adForm.querySelector(`.ad-form__reset`);
-  let adFormSubmit = document.querySelector(`.ad-form__submit`);
+  const main = document.querySelector(`main`);
+  const adForm = document.querySelector(`.ad-form`);
+  const adFormRooms = adForm.querySelector(`select[name="rooms"]`);
+  const adFormCapacity = adForm.querySelector(`select[name="capacity"]`);
+  const adFormTitle = adForm.querySelector(`#title`);
+  const adFormPrice = adForm.querySelector(`#price`);
+  const adFormType = adForm.querySelector(`#type`);
+  const adFormTimein = adForm.querySelector(`#timein`);
+  const adFormTimeout = adForm.querySelector(`#timeout`);
+  const adFormReset = adForm.querySelector(`.ad-form__reset`);
+  const adFormSubmit = document.querySelector(`.ad-form__submit`);
   let minPrice;
-  let successMessageTemplate = document.querySelector(`#success`).content.querySelector(`.success`);
-  let errorMessageTemplate = document.querySelector(`#error`).content.querySelector(`.error`);
+  const successMessageTemplate = document.querySelector(`#success`).content.querySelector(`.success`);
+  const errorMessageTemplate = document.querySelector(`#error`).content.querySelector(`.error`);
 
   adFormCapacity.addEventListener(`input`, () => {
     adFormCapacity.setCustomValidity(``);
@@ -76,7 +77,7 @@
   });
 
   adFormPrice.addEventListener(`input`, () => {
-    let adFormTypeText = OFFER_TYPE_VALUE[adFormType.value];
+    const adFormTypeText = OFFER_TYPE_VALUE[adFormType.value];
 
     adFormPrice.setCustomValidity(``);
     if (adFormPrice.value > MAX_PRICE) {
@@ -96,26 +97,26 @@
     adFormTimein.value = evt.target.value;
   });
 
-  let uploadSuccessHandler = () => {
-    let renderSuccessMessage = () => {
-      let successMessageElement = successMessageTemplate.cloneNode(true);
+  const uploadSuccessHandler = () => {
+    const renderSuccessMessage = () => {
+      const successMessageElement = successMessageTemplate.cloneNode(true);
 
-      let escHandler = (evt) => {
-        if (evt.key === `Escape`) {
+      const documentEscHandler = (evt) => {
+        if (evt.key === KEY_ESC) {
           successMessageElement.remove();
         }
-        document.removeEventListener(`keydown`, escHandler);
-        document.removeEventListener(`click`, clickHandler);
+        document.removeEventListener(`keydown`, documentEscHandler);
+        document.removeEventListener(`click`, documentClickHandler);
       };
 
-      let clickHandler = () => {
+      const documentClickHandler = () => {
         successMessageElement.remove();
-        document.removeEventListener(`click`, clickHandler);
-        document.removeEventListener(`keydown`, escHandler);
+        document.removeEventListener(`click`, documentClickHandler);
+        document.removeEventListener(`keydown`, documentEscHandler);
       };
 
-      document.addEventListener(`keydown`, escHandler);
-      document.addEventListener(`click`, clickHandler);
+      document.addEventListener(`keydown`, documentEscHandler);
+      document.addEventListener(`click`, documentClickHandler);
 
       return successMessageElement;
     };
@@ -125,32 +126,32 @@
     window.map.setDisactiveState();
   };
 
-  let uploadErrorHandler = () => {
-    let renderErrorMessage = () => {
-      let errorMessageElement = errorMessageTemplate.cloneNode(true);
-      let errorMessageButton = errorMessageElement.querySelector(`.error__button`);
+  const renderErrorMessage = () => {
+    const errorMessageElement = errorMessageTemplate.cloneNode(true);
+    const errorMessageButton = errorMessageElement.querySelector(`.error__button`);
 
-      let escHandler = (evt) => {
-        if (evt.key === `Escape`) {
-          errorMessageElement.remove();
-        }
-        document.removeEventListener(`keydown`, escHandler);
-        document.removeEventListener(`click`, clickHandler);
-      };
-
-      let clickHandler = () => {
+    const documentEscHandler = (evt) => {
+      if (evt.key === KEY_ESC) {
         errorMessageElement.remove();
-        document.removeEventListener(`click`, clickHandler);
-        document.removeEventListener(`keydown`, escHandler);
-      };
-
-      errorMessageButton.addEventListener(`click`, clickHandler);
-      document.addEventListener(`click`, clickHandler);
-      document.addEventListener(`keydown`, escHandler);
-
-      return errorMessageElement;
+      }
+      document.removeEventListener(`keydown`, documentEscHandler);
+      document.removeEventListener(`click`, documentClickHandler);
     };
 
+    const documentClickHandler = () => {
+      errorMessageElement.remove();
+      document.removeEventListener(`click`, documentClickHandler);
+      document.removeEventListener(`keydown`, documentEscHandler);
+    };
+
+    errorMessageButton.addEventListener(`click`, documentClickHandler);
+    document.addEventListener(`click`, documentClickHandler);
+    document.addEventListener(`keydown`, documentEscHandler);
+
+    return errorMessageElement;
+  };
+
+  const uploadErrorHandler = () => {
     main.appendChild(renderErrorMessage());
   };
 
@@ -158,12 +159,12 @@
     checkValidity();
   });
 
-  let checkValidity = () => {
+  const checkValidity = () => {
     if (adFormTitle.value.length === 0) {
       adFormTitle.setCustomValidity(`Введите заголовок`);
     }
 
-    let adFormTypeText = OFFER_TYPE_VALUE[adFormType.value];
+    const adFormTypeText = OFFER_TYPE_VALUE[adFormType.value];
 
     adFormPrice.setCustomValidity(``);
     if (adFormPrice.value.length === 0) {
@@ -177,21 +178,24 @@
     }
 
     adFormCapacity.setCustomValidity(``);
-    if (adFormRooms.value.indexOf(+adFormCapacity.value) === -1) {
+    if (+adFormRooms.value === 100 && +adFormCapacity.value !== 0) {
+      adFormCapacity.setCustomValidity(`Выбранно неверное количество гостей `);
+    }
+    if (+adFormRooms.value < +adFormCapacity.value) {
       adFormCapacity.setCustomValidity(`Выбранное количество гостей не поместятся в данное количество комнат`);
     }
   };
 
   adForm.addEventListener(`submit`, (evt) => {
-    window.upload(new FormData(adForm), uploadSuccessHandler, uploadErrorHandler);
+    window.backend.upload(new FormData(adForm), uploadSuccessHandler, uploadErrorHandler);
 
     evt.preventDefault();
-    window.map.getDefaultPinPosition();
+    window.map.setDefaultPinPosition();
   });
 
   adFormReset.addEventListener(`click`, () => {
     adForm.reset();
     window.map.setDisactiveState();
-    window.map.getDefaultPinPosition();
+    window.map.setDefaultPinPosition();
   });
 })();
