@@ -9,6 +9,7 @@ module.exports = {
       "./js/pin.js",
       "./js/map.js",
       "./js/form.js",
+      "./js/preview.js",
       "./js/main.js",
   ],
   output: {
