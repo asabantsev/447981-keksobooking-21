@@ -18,6 +18,7 @@ const TITLE_MAX_LENGTH = 100;
 const TITLE_MIN_LENGTH = 30;
 const MAX_PRICE = 1000000;
 const KEY_ESC = `Escape`;
+const DEFAULT_AVATAR = `img/muffin-grey.svg`;
 
 const main = document.querySelector(`main`);
 const adForm = document.querySelector(`.ad-form`);
@@ -28,6 +29,8 @@ const adFormPrice = adForm.querySelector(`#price`);
 const adFormType = adForm.querySelector(`#type`);
 const adFormTimein = adForm.querySelector(`#timein`);
 const adFormTimeout = adForm.querySelector(`#timeout`);
+const avatarPreview = document.querySelector(`.ad-form-header__preview img`);
+const photoPreview = document.querySelector(`.ad-form__photo`);
 const adFormReset = adForm.querySelector(`.ad-form__reset`);
 const adFormSubmit = document.querySelector(`.ad-form__submit`);
 let minPrice;
@@ -122,6 +125,8 @@ const uploadSuccessHandler = () => {
 
   main.appendChild(renderSuccessMessage());
   adForm.reset();
+  avatarPreview.src = DEFAULT_AVATAR;
+  photoPreview.textContent = ``;
   window.map.setDisactiveState();
 };
 
@@ -194,6 +199,8 @@ adForm.addEventListener(`submit`, (evt) => {
 
 adFormReset.addEventListener(`click`, () => {
   adForm.reset();
+  avatarPreview.src = DEFAULT_AVATAR;
+  photoPreview.textContent = ``;
   window.map.setDisactiveState();
   window.map.setDefaultPinPosition();
 });
